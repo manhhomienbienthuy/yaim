@@ -12,6 +12,8 @@
 		212339D329DAA0F8000C48EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 212339D229DAA0F8000C48EE /* Assets.xcassets */; };
 		212339D629DAA0F8000C48EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 212339D429DAA0F8000C48EE /* Main.storyboard */; };
 		212339D829DAA0F8000C48EE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 212339D729DAA0F8000C48EE /* main.m */; };
+		212339E229DAA19A000C48EE /* vietnamese.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 212339E029DAA19A000C48EE /* vietnamese.cpp */; };
+		212339E729DAA24D000C48EE /* engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 212339E529DAA24D000C48EE /* engine.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,12 @@
 		212339D529DAA0F8000C48EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		212339D729DAA0F8000C48EE /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		212339D929DAA0F8000C48EE /* yaim.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = yaim.entitlements; sourceTree = "<group>"; };
+		212339E029DAA19A000C48EE /* vietnamese.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = vietnamese.cpp; sourceTree = "<group>"; };
+		212339E129DAA19A000C48EE /* vietnamese.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = vietnamese.hpp; sourceTree = "<group>"; };
+		212339E329DAA1B6000C48EE /* datatypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = datatypes.h; sourceTree = "<group>"; };
+		212339E429DAA228000C48EE /* keycodes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = keycodes.h; sourceTree = "<group>"; };
+		212339E529DAA24D000C48EE /* engine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cpp; sourceTree = "<group>"; };
+		212339E629DAA24D000C48EE /* engine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = engine.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +64,7 @@
 		212339CB29DAA0F5000C48EE /* yaim */ = {
 			isa = PBXGroup;
 			children = (
+				212339DF29DAA17A000C48EE /* engine */,
 				212339CC29DAA0F5000C48EE /* AppDelegate.h */,
 				212339CD29DAA0F5000C48EE /* AppDelegate.m */,
 				212339CF29DAA0F5000C48EE /* ViewController.h */,
@@ -66,6 +75,19 @@
 				212339D929DAA0F8000C48EE /* yaim.entitlements */,
 			);
 			path = yaim;
+			sourceTree = "<group>";
+		};
+		212339DF29DAA17A000C48EE /* engine */ = {
+			isa = PBXGroup;
+			children = (
+				212339E029DAA19A000C48EE /* vietnamese.cpp */,
+				212339E129DAA19A000C48EE /* vietnamese.hpp */,
+				212339E329DAA1B6000C48EE /* datatypes.h */,
+				212339E429DAA228000C48EE /* keycodes.h */,
+				212339E529DAA24D000C48EE /* engine.cpp */,
+				212339E629DAA24D000C48EE /* engine.hpp */,
+			);
+			path = engine;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -137,6 +159,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				212339E229DAA19A000C48EE /* vietnamese.cpp in Sources */,
+				212339E729DAA24D000C48EE /* engine.cpp in Sources */,
 				212339D129DAA0F5000C48EE /* ViewController.m in Sources */,
 				212339D829DAA0F8000C48EE /* main.m in Sources */,
 				212339CE29DAA0F5000C48EE /* AppDelegate.m in Sources */,
@@ -276,6 +300,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -283,6 +308,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = local.naa.yaim;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -300,6 +326,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -307,6 +334,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = local.naa.yaim;
 				PRODUCT_NAME = "$(TARGET_NAME)";
