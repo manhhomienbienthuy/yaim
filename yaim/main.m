@@ -2,7 +2,8 @@
 //  main.m
 //  yaim
 //
-//  Created by Ngoc Anh, Tran | RMI on 2023/04/03.
+//  Created by naa on 2023/04/03.
+//  Modified from source code of OpenKey by TuyenVM.
 //
 
 #import <Cocoa/Cocoa.h>
