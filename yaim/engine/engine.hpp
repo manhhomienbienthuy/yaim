@@ -24,6 +24,7 @@
  * 1: Vietnamese
  */
 extern bool isVietnamese;
+extern bool isABCKeyboard;
 
 /**
  * Call this function first to receive data pointer

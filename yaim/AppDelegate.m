@@ -13,6 +13,7 @@ AppDelegate* appDelegate;
 extern void RequestNewSession(void);
 
 bool isVietnamese = true;
+bool isABCKeyboard = true;
 
 @interface AppDelegate ()
 
@@ -21,10 +22,7 @@ bool isVietnamese = true;
 
 @implementation AppDelegate
 
-NSWindowController *_mainWC;
 NSStatusItem *statusItem;
-NSMenu *theMenu;
-NSMenuItem* menuInputMethod;
 
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -39,7 +37,8 @@ NSMenuItem* menuInputMethod;
 
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    [[NSUserDefaults standardUserDefaults] setBool:isVietnamese forKey:@"vietnamese"];
+    [[NSUserDefaults standardUserDefaults] setBool:isVietnamese
+                                            forKey:@"vietnamese"];
 }
 
 
@@ -53,13 +52,14 @@ NSMenuItem* menuInputMethod;
     statusItem = [statusBar statusItemWithLength:NSVariableStatusItemLength];
     statusItem.button.image = [NSImage imageNamed:@"vi"];
 
-    theMenu = [[NSMenu alloc] initWithTitle:@""];
+    NSMenu *theMenu = [[NSMenu alloc] initWithTitle:@""];
     [theMenu setAutoenablesItems:NO];
-
-    menuInputMethod = [theMenu addItemWithTitle:@"English"
-                                                     action:@selector(onInputMethodChanged)
-                                              keyEquivalent:@""];
-    [theMenu addItemWithTitle:@"Thoát" action:@selector(terminate:) keyEquivalent:@""];
+    [theMenu addItemWithTitle:@"VIE / EN"
+                       action:@selector(onInputMethodChanged)
+                keyEquivalent:@"e"];
+    [theMenu addItemWithTitle:@"Thoát"
+                       action:@selector(terminate:)
+                keyEquivalent:@"q"];
 
     //set menu
     [statusItem setMenu:theMenu];
@@ -68,9 +68,11 @@ NSMenuItem* menuInputMethod;
 }
 
 
-- (void) getInitData {
-    isVietnamese = [[NSUserDefaults standardUserDefaults] boolForKey:@"vietnamese"];
+- (void)getInitData {
+    isVietnamese = [[NSUserDefaults standardUserDefaults]
+                    boolForKey:@"vietnamese"];
     [self updateIcon];
+    [self receiveInputChanged:nil];
 }
 
 
@@ -81,43 +83,53 @@ NSMenuItem* menuInputMethod;
 
 
 - (void)updateIcon {
-    if (isVietnamese) {
-        [menuInputMethod setTitle:@"English"];
-        statusItem.button.image = [NSImage imageNamed:@"vi"];
-    } else {
-        [menuInputMethod setTitle:@"Tiếng Việt"];
-        statusItem.button.image = [NSImage imageNamed:@"en"];
-    }
+    statusItem.button.image = [NSImage imageNamed:(isVietnamese ? @"vi" : @"en")];
 }
 
 
-- (void)receiveWakeNote: (NSNotification*)note {
+- (void)receiveWakeNote:(NSNotification*)note {
     [manager initEventTap];
 }
 
 
-- (void)receiveSleepNote: (NSNotification*)note {
+- (void)receiveSleepNote:(NSNotification*)note {
     [manager stopEventTap];
 }
 
 
-- (void)receiveActiveSpaceChanged: (NSNotification*)note {
+- (void)receiveActiveSpaceChanged:(NSNotification*)note {
     RequestNewSession();
 }
 
 
+- (void)receiveInputChanged:(NSNotification*)note {
+    TISInputSourceRef isource = TISCopyCurrentKeyboardInputSource();
+    NSString* layoutID = (__bridge NSString*)TISGetInputSourceProperty(isource, kTISPropertyInputSourceID);
+    isABCKeyboard = [layoutID isEqualToString:@"com.apple.keylayout.ABC"];
+    CFRelease(isource);
+}
+
+
 - (void)registerSupportedNotification {
-    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver: self
-                                                           selector: @selector(receiveWakeNote:)
-                                                               name: NSWorkspaceDidWakeNotification object: NULL];
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                                                           selector:@selector(receiveWakeNote:)
+                                                               name:NSWorkspaceDidWakeNotification
+                                                             object:nil];
 
-    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver: self
-                                                           selector: @selector(receiveSleepNote:)
-                                                               name: NSWorkspaceWillSleepNotification object: NULL];
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                                                           selector:@selector(receiveSleepNote:)
+                                                               name:NSWorkspaceWillSleepNotification
+                                                             object:nil];
 
-    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver: self
-                                                           selector: @selector(receiveActiveSpaceChanged:)
-                                                               name: NSWorkspaceActiveSpaceDidChangeNotification object: NULL];
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                                                           selector:@selector(receiveActiveSpaceChanged:)
+                                                               name:NSWorkspaceActiveSpaceDidChangeNotification
+                                                             object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(receiveInputChanged:)
+                                                 name: NSTextInputContextKeyboardSelectionDidChangeNotification
+                                               object:nil];
 }
 
 

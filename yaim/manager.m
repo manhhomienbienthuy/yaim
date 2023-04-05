@@ -52,10 +52,10 @@ static CFRunLoopSourceRef runLoopSource;
                                 0,
                                 eventMask,
                                 callback,
-                                NULL);
+                                nil);
 
     if (!eventTap) {
-        fprintf(stderr, "failed to create event tap\n");
+        NSLog(@"failed to create event tap");
         return NO;
     }
 

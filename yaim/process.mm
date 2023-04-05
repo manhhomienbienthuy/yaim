@@ -10,8 +10,8 @@
 #import "AppDelegate.h"
 
 #define OTHER_CONTROL_KEY (_flag & kCGEventFlagMaskCommand) || (_flag & kCGEventFlagMaskControl) || \
-                            (_flag & kCGEventFlagMaskAlternate) || (_flag & kCGEventFlagMaskSecondaryFn) || \
-                            (_flag & kCGEventFlagMaskNumericPad) || (_flag & kCGEventFlagMaskHelp)
+                          (_flag & kCGEventFlagMaskAlternate) || (_flag & kCGEventFlagMaskSecondaryFn) || \
+                          (_flag & kCGEventFlagMaskNumericPad) || (_flag & kCGEventFlagMaskHelp)
 
 #define DYNA_DATA(pos) pData->charData[pos]
 #define MAX_UNICODE_STRING  20
@@ -19,7 +19,7 @@
 extern AppDelegate* appDelegate;
 
 extern "C" {
-    CGEventSourceRef myEventSource = NULL;
+    CGEventSourceRef myEventSource = nil;
     vKeyHookState* pData;
     CGKeyCode _keycode;
     CGEventFlags _flag;
@@ -161,7 +161,7 @@ extern "C" {
         if (type == kCGEventFlagsChanged && checkHotKey()) {
             [appDelegate onInputMethodChanged];
             startNewSession();
-            return NULL;
+            return nil;
         }
 
         // Also check correct event hooked
@@ -173,7 +173,7 @@ extern "C" {
         _proxy = proxy;
 
         //If is in english mode
-        if (!isVietnamese) {
+        if (!isVietnamese || !isABCKeyboard) {
             return event;
         }
 
@@ -212,7 +212,7 @@ extern "C" {
                 SendNewCharString();
             }
 
-            return NULL;
+            return nil;
         }
 
         return event;
