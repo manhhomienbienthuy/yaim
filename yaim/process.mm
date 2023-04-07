@@ -31,7 +31,7 @@ extern "C" {
     }
 
     void RequestNewSession() {
-        //send event signal to Engine
+        // send event signal to Engine
         vKeyHandleEvent(vKeyEvent::Mouse, vKeyEventState::MouseDown, 0);
     }
 
@@ -68,7 +68,7 @@ extern "C" {
     }
 
     void SendEmptyCharacter() {
-        UniChar _newChar = 0x202F; //empty char
+        UniChar _newChar = 0x202F; // empty char
         CGEventRef _newEventDown = CGEventCreateKeyboardEvent(myEventSource, 0, true);
         CGEventRef _newEventUp = CGEventCreateKeyboardEvent(myEventSource, 0, false);
         CGEventKeyboardSetUnicodeString(_newEventDown, 1, &_newChar);
@@ -106,10 +106,11 @@ extern "C" {
                 } else {
                     _newCharString[_i++] = _tempChar;
                 }
-            }//end for
+            }// end for
         }
 
-        if (!_willContinuteSending && pData->code == vRestore) { //if is restore
+        // if is restore
+        if (!_willContinuteSending && pData->code == vRestore) {
             if (keyCodeToCharacter(_keycode) != 0) {
                 _newCharSize++;
                 _newCharString[_i++] = keyCodeToCharacter(_keycode | ((_flag & kCGEventFlagMaskAlphaShift) || (_flag & kCGEventFlagMaskShift) ? CAPS_MASK : 0));
@@ -131,7 +132,8 @@ extern "C" {
             SendNewCharString(16);
         }
 
-        //the case when hCode is vRestore, the word is invalid and last key is control key such as TAB, LEFT ARROW, RIGHT ARROW,...
+        // the case when hCode is vRestore, the word is invalid and last key is
+        // control key such as TAB, LEFT ARROW, RIGHT ARROW,...
         if (_willSendControlKey) {
             SendKeyCode(_keycode);
         }
@@ -170,45 +172,45 @@ extern "C" {
             (type != kCGEventLeftMouseDragged) && (type != kCGEventRightMouseDragged))
             return event;
 
-        _proxy = proxy;
-
-        //If is in english mode
+        // if is in english mode
         if (!isVietnamese || !isABCKeyboard) {
             return event;
         }
 
-        //handle mouse
+        // handle mouse
         if (type == kCGEventLeftMouseDown || type == kCGEventRightMouseDown || type == kCGEventLeftMouseDragged || type == kCGEventRightMouseDragged) {
             RequestNewSession();
             return event;
         }
 
-        //handle keyboard
+        _proxy = proxy;
+
+        // handle keyboard
         if (type == kCGEventKeyDown) {
-            //send event signal to Engine
+            // send event signal to Engine
             vKeyHandleEvent(vKeyEvent::Keyboard,
                             vKeyEventState::KeyDown,
                             _keycode,
                             _flag & kCGEventFlagMaskShift ? 1 : (_flag & kCGEventFlagMaskAlphaShift ? 2 : 0),
                             OTHER_CONTROL_KEY);
-            if (pData->code == vDoNothing) { //do nothing
+            if (pData->code == vDoNothing) { // do nothing
                 return event;
-            } else if (pData->code == vWillProcess || pData->code == vRestore) { //handle result signal
+            } else if (pData->code == vWillProcess || pData->code == vRestore) { // handle result signal
 
-                //fix autocomplete
+                // fix autocomplete
                 if (pData->extCode != 4) {
                     SendEmptyCharacter();
                     pData->backspaceCount++;
                 }
 
-                //send backspace
+                // send backspace
                 if (pData->backspaceCount > 0 && pData->backspaceCount < MAX_BUFF) {
                     for (int _i = 0; _i < pData->backspaceCount; _i++) {
                         SendBackspace();
                     }
                 }
 
-                //send new character
+                // send new character
                 SendNewCharString();
             }
 

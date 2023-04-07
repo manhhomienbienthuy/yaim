@@ -77,7 +77,7 @@ static CFRunLoopSourceRef runLoopSource;
 }
 
 + (BOOL)stopEventTap {
-    if (_isInited) { //release all object
+    if (_isInited) { // release all object
         CFRunLoopStop(CFRunLoopGetCurrent());
 
         CFRunLoopRemoveSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopDefaultMode);

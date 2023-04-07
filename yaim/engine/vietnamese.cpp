@@ -94,7 +94,7 @@ map<Uint16, vector<vector<Uint16>>> _vowel = {
 map<Uint16, vector<vector<Uint32>>> _vowelCombine = {
     {
         KEY_A, {
-            //fist elem can has end consonant or not
+            // fist elem can has end consonant or not
             {0, KEY_A, KEY_I},
             {0, KEY_A, KEY_O},
             {0, KEY_A, KEY_U},
@@ -349,16 +349,16 @@ vector<vector<Uint16>> _doubleWAllowed = {
  * 4: Vietnamese Locale CP 1258
  */
 map<Uint32, vector<Uint16>> _codeTable = {
-        //{keyCode, {CAPS_CHAR,    NORMAL_CHAR,     CAPS_W_CHAR,     NORMAL_W_CHAR}}
-        //KEY_A,            {Â, â, Ă, ă, Á, á, À, à, Ả, ả, Ã, ã, Ạ, ạ
+        // {keyCode, {CAPS_CHAR,    NORMAL_CHAR,     CAPS_W_CHAR,     NORMAL_W_CHAR}}
+        // KEY_A,           {Â, â, Ă, ă, Á, á, À, à, Ả, ả, Ã, ã, Ạ, ạ
         { KEY_A,            {0x00C2, 0x00E2, 0x0102, 0x0103, 0x00C1, 0x00E1, 0x00C0, 0x00E0, 0x1EA2, 0x1EA3, 0x00C3, 0x00E3, 0x1EA0, 0x1EA1}},
         { KEY_O,            {0x00D4, 0x00F4, 0x01A0, 0x01A1, 0x00D3, 0x00F3, 0x00D2, 0x00F2, 0x1ECE, 0x1ECF, 0x00D5, 0x00F5, 0x1ECC, 0x1ECD}},
         { KEY_U,            {0x0000, 0x0000, 0x01AF, 0x01B0, 0x00DA, 0x00FA, 0x00D9, 0x00F9, 0x1EE6, 0x1EE7, 0x0168, 0x0169, 0x1EE4, 0x1EE5}},
         { KEY_E,            {0x00CA, 0x00EA, 0x0000, 0x0000, 0x00C9, 0x00E9, 0x00C8, 0x00E8, 0x1EBA, 0x1EBB, 0x1EBC, 0x1EBD, 0x1EB8, 0x1EB9}},
         { KEY_D,            {0x0110, 0x0111}},
-                                //Ấ, ấ, Ầ, ầ, Ẩ, ẩ, Ẫ, ẫ, Ậ, ậ ,
+                            // Ấ, ấ, Ầ, ầ, Ẩ, ẩ, Ẫ, ẫ, Ậ, ậ ,
         { KEY_A|TONE_MASK,  {0x1EA4, 0x1EA5, 0x1EA6, 0x1EA7, 0x1EA8, 0x1EA9, 0x1EAA, 0x1EAB, 0x1EAC, 0x1EAD}},
-                               // Ắ, ắ, Ằ, ằ, Ẳ, ẳ, Ẵ, ẵ, Ặ, ặ
+                            // Ắ, ắ, Ằ, ằ, Ẳ, ẳ, Ẵ, ẵ, Ặ, ặ
         { KEY_A|TONEW_MASK, {0x1EAE, 0x1EAF, 0x1EB0, 0x1EB1, 0x1EB2, 0x1EB3, 0x1EB4, 0x1EB5, 0x1EB6, 0x1EB7}},
         { KEY_O|TONE_MASK,  {0x1ED0, 0x1ED1, 0x1ED2, 0x1ED3, 0x1ED4, 0x1ED5, 0x1ED6, 0x1ED7, 0x1ED8, 0x1ED9}},
         { KEY_O|TONEW_MASK, {0x1EDA, 0x1EDB, 0x1EDC, 0x1EDD, 0x1EDE, 0x1EDF, 0x1EE0, 0x1EE1, 0x1EE2, 0x1EE3}},
@@ -429,7 +429,7 @@ void initKeyCodeToChar() {
 }
 
 Uint16 keyCodeToCharacter(const Uint32& keyCode) {
-    if (_keyCodeToChar.size() == 0) { //init data if it is empty
+    if (_keyCodeToChar.size() == 0) {  // init data if it is empty
         initKeyCodeToChar();
     }
     if (_keyCodeToChar.find(keyCode) != _keyCodeToChar.end()) {

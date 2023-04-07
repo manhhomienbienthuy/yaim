@@ -61,7 +61,7 @@ NSStatusItem *statusItem;
                        action:@selector(terminate:)
                 keyEquivalent:@"q"];
 
-    //set menu
+    // set menu
     [statusItem setMenu:theMenu];
 
     [self getInitData];
@@ -125,7 +125,7 @@ NSStatusItem *statusItem;
                                                            selector:@selector(receiveActiveSpaceChanged:)
                                                                name:NSWorkspaceActiveSpaceDidChangeNotification
                                                              object:nil];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(receiveInputChanged:)
                                                  name: NSTextInputContextKeyboardSelectionDidChangeNotification

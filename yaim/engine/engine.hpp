@@ -17,12 +17,6 @@
 
 #define GET_BOOL(data) (data ? 1 : 0)
 
-//define these variable in your application
-//API
-/*
- * 0: English
- * 1: Vietnamese
- */
 extern bool isVietnamese;
 extern bool isABCKeyboard;
 

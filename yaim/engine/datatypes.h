@@ -35,12 +35,12 @@ typedef unsigned int Uint32;
 typedef unsigned long int Uint64;
 
 enum HoolCodeState {
-    vDoNothing = 0, //do not do anything
-    vWillProcess, //will reverse
-    vRestore, //restore character to old char
+    vDoNothing = 0, // do not do anything
+    vWillProcess,   // will reverse
+    vRestore,       // restore character to old char
 };
 
-//bytes data for main program
+// bytes data for main program
 struct vKeyHookState {
     /*
      * 0: Do nothing
@@ -59,12 +59,12 @@ struct vKeyHookState {
      */
     Byte extCode;
 
-    Uint32 charData[MAX_BUFF]; //new character will be put in queue
+    Uint32 charData[MAX_BUFF]; // new character will be put in queue
 };
 
 #include "keycodes.h"
 
-//internal engine data
+// internal engine data
 #define CAPS_MASK                               0x10000
 #define TONE_MASK                               0x20000
 #define TONEW_MASK                              0x40000
@@ -83,21 +83,21 @@ struct vKeyHookState {
 #define MARK4_MASK                              0x400000
 #define MARK5_MASK                              0x800000
 
-//for checking has mark or not
+// for checking has mark or not
 #define MARK_MASK                               0xF80000
 
-//mark and get first 16 bytes character
+// mark and get first 16 bytes character
 #define CHAR_MASK                               0xFFFF
 
-//Check whether the data is create by standalone key or not (W)
+// Check whether the data is create by standalone key or not (W)
 #define STANDALONE_MASK                         0x1000000
 
-//Chec whether the data is keyboard code or character code
+// Chec whether the data is keyboard code or character code
 #define CHAR_CODE_MASK                          0x2000000
 
 #define PURE_CHARACTER_MASK                     0x80000000
 
-//Utilities macro
+// Utilities macro
 #define IS_CONSONANT(keyCode) !(keyCode == KEY_A || keyCode == KEY_E || keyCode == KEY_U || keyCode == KEY_Y || keyCode == KEY_I || keyCode == KEY_O)
 #define CHR(index) (Uint16)TypingWord[index]
 #define IS_SPECIALKEY(keyCode) \
