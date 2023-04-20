@@ -8,6 +8,7 @@
 
 #import "engine.hpp"
 #import "AppDelegate.h"
+#import <IOKit/hidsystem/ev_keymap.h>
 
 #define OTHER_CONTROL_KEY (_flag & kCGEventFlagMaskCommand) || (_flag & kCGEventFlagMaskControl) || \
                           (_flag & kCGEventFlagMaskAlternate) || (_flag & kCGEventFlagMaskSecondaryFn) || \
@@ -24,6 +25,21 @@ extern "C" {
     CGKeyCode _keycode;
     CGEventFlags _flag;
     CGEventTapProxy _proxy;
+    BOOL _isFnPressed = false;
+    map<int, int> FuncKeyMap = {
+        {kVK_F1, NX_KEYTYPE_BRIGHTNESS_DOWN},
+        {kVK_F2, NX_KEYTYPE_BRIGHTNESS_UP},
+//        {kVK_F3, NX_KEYTYPE_CONTRAST_DOWN},
+//        {kVK_F4, NX_KEYTYPE_CONTRAST_UP},
+        {kVK_F5, NX_KEYTYPE_ILLUMINATION_DOWN},
+        {kVK_F6, NX_KEYTYPE_ILLUMINATION_UP},
+        {kVK_F7, NX_KEYTYPE_PREVIOUS},
+        {kVK_F8, NX_KEYTYPE_PLAY},
+        {kVK_F9, NX_KEYTYPE_NEXT},
+        {kVK_F10, NX_KEYTYPE_MUTE},
+        {kVK_F11, NX_KEYTYPE_SOUND_DOWN},
+        {kVK_F12, NX_KEYTYPE_SOUND_UP},
+    };
 
     void init() {
         myEventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
@@ -160,10 +176,19 @@ extern "C" {
         _keycode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
 
         // switch language shortcut; convert hotkey
-        if (type == kCGEventFlagsChanged && checkHotKey()) {
-            [appDelegate onInputMethodChanged];
-            startNewSession();
-            return nil;
+        if (type == kCGEventFlagsChanged) {
+            if (checkHotKey()) {
+                [appDelegate onInputMethodChanged];
+                startNewSession();
+                return nil;
+            }
+            if (_keycode == kVK_Function) {
+                if (_flag & kCGEventFlagMaskSecondaryFn) {
+                    _isFnPressed = true;
+                } else {
+                    _isFnPressed = false;
+                }
+            }
         }
 
         // Also check correct event hooked
@@ -171,6 +196,36 @@ extern "C" {
             (type != kCGEventLeftMouseDown) && (type != kCGEventRightMouseDown) &&
             (type != kCGEventLeftMouseDragged) && (type != kCGEventRightMouseDragged))
             return event;
+
+
+        if (_isFnPressed && type == kCGEventKeyDown && _flag & kCGEventFlagMaskSecondaryFn) {
+            if (FuncKeyMap.find(_keycode) != FuncKeyMap.end()) {
+                int code = FuncKeyMap[_keycode];
+                CGEventRef _newEventDown = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
+                                                               location:NSZeroPoint
+                                                          modifierFlags:0xa00
+                                                              timestamp:0
+                                                           windowNumber:0
+                                                                context:nil
+                                                                subtype:8
+                                                                  data1:((code << 16) | (0xa << 8))
+                                                                  data2:-1]
+                                            CGEvent];
+                CGEventRef _newEventUp = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
+                                                             location:NSZeroPoint
+                                                        modifierFlags:0xb00
+                                                            timestamp:0
+                                                         windowNumber:0
+                                                              context:nil
+                                                              subtype:8
+                                                                data1:((code << 16) | (0xb << 8))
+                                                                data2:-1]
+                                          CGEvent];
+                CGEventPost(kCGHIDEventTap, _newEventDown);
+                CGEventPost(kCGHIDEventTap, _newEventUp);
+                return nil;
+            }
+        }
 
         // if is in english mode
         if (!isVietnamese || !isABCKeyboard) {
