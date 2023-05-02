@@ -14,8 +14,7 @@
                           (_flag & kCGEventFlagMaskAlternate) || (_flag & kCGEventFlagMaskSecondaryFn) || \
                           (_flag & kCGEventFlagMaskNumericPad) || (_flag & kCGEventFlagMaskHelp)
 
-#define DYNA_DATA(pos) pData->charData[pos]
-#define MAX_UNICODE_STRING  20
+#define MAX_UNICODE_STRING 20
 
 extern AppDelegate* appDelegate;
 
@@ -40,6 +39,7 @@ extern "C" {
         {kVK_F11, NX_KEYTYPE_SOUND_DOWN},
         {kVK_F12, NX_KEYTYPE_SOUND_UP},
     };
+    vector<int> ShortcutKeys = {kVK_Shift, kVK_RightShift, kVK_Control, kVK_RightControl};
 
     void init() {
         myEventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
@@ -114,7 +114,7 @@ extern "C" {
                     break;
                 }
 
-                Uint32 _tempChar = DYNA_DATA(_j);
+                Uint32 _tempChar = pData->charData[_j];
                 if (_tempChar & PURE_CHARACTER_MASK) {
                     _newCharString[_i++] = _tempChar;
                 } else if (!(_tempChar & CHAR_CODE_MASK)) {
@@ -156,10 +156,10 @@ extern "C" {
     }
 
     bool checkHotKey() {
-        return (GET_BOOL(_flag & kCGEventFlagMaskControl) &&
-                GET_BOOL(_flag & kCGEventFlagMaskShift) &&
-                !GET_BOOL(_flag & kCGEventFlagMaskAlternate) &&
-                !GET_BOOL(_flag & kCGEventFlagMaskCommand));
+        return (_flag & kCGEventFlagMaskControl) != 0 &&
+            (_flag & kCGEventFlagMaskShift) != 0 &&
+            (_flag & kCGEventFlagMaskAlternate) == 0 &&
+            (_flag & kCGEventFlagMaskCommand) == 0;
     }
 
     /**
@@ -177,17 +177,14 @@ extern "C" {
 
         // switch language shortcut; convert hotkey
         if (type == kCGEventFlagsChanged) {
-            if (checkHotKey()) {
+            if ((std::find(ShortcutKeys.begin(), ShortcutKeys.end(), _keycode) != ShortcutKeys.end()) &&
+                checkHotKey()) {
                 [appDelegate onInputMethodChanged];
                 startNewSession();
                 return nil;
             }
             if (_keycode == kVK_Function) {
-                if (_flag & kCGEventFlagMaskSecondaryFn) {
-                    _isFnPressed = true;
-                } else {
-                    _isFnPressed = false;
-                }
+                _isFnPressed = (_flag & kCGEventFlagMaskSecondaryFn) != 0;
             }
         }
 

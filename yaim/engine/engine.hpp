@@ -15,8 +15,6 @@
 #include "datatypes.h"
 #include "vietnamese.hpp"
 
-#define GET_BOOL(data) (data ? 1 : 0)
-
 extern bool isVietnamese;
 extern bool isABCKeyboard;
 

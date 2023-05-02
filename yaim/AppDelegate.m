@@ -47,24 +47,40 @@ NSStatusItem *statusItem;
 }
 
 
+- (void)menuDidClose:(NSMenu *)_menu {
+    statusItem.menu = nil;
+}
+
+
 - (void)createStatusBarMenu {
     NSStatusBar *statusBar = [NSStatusBar systemStatusBar];
     statusItem = [statusBar statusItemWithLength:NSVariableStatusItemLength];
     statusItem.button.image = [NSImage imageNamed:@"vi"];
-
-    NSMenu *theMenu = [[NSMenu alloc] initWithTitle:@""];
-    [theMenu setAutoenablesItems:NO];
-    [theMenu addItemWithTitle:@"VIE / EN"
-                       action:@selector(onInputMethodChanged)
-                keyEquivalent:@"e"];
-    [theMenu addItemWithTitle:@"Thoát"
-                       action:@selector(terminate:)
-                keyEquivalent:@"q"];
-
-    // set menu
-    [statusItem setMenu:theMenu];
+    statusItem.button.action = @selector(menuAction:);
+    [statusItem.button sendActionOn:NSEventMaskLeftMouseDown | NSEventMaskRightMouseDown];
 
     [self getInitData];
+}
+
+
+- (void)menuAction:(id)sender {
+    NSEvent *event = [[NSApplication sharedApplication] currentEvent];
+
+    if (event.type == NSEventTypeRightMouseDown) {
+        NSMenu *theMenu = [[NSMenu alloc] initWithTitle:@""];
+        [theMenu setDelegate:self];
+        [theMenu setAutoenablesItems:NO];
+        [theMenu addItemWithTitle:@"VIE / EN"
+                           action:@selector(onInputMethodChanged)
+                    keyEquivalent:@"e"];
+        [theMenu addItemWithTitle:@"Thoát"
+                           action:@selector(terminate:)
+                    keyEquivalent:@"q"];
+        statusItem.menu = theMenu;
+        [statusItem.button performClick:nil];
+    } else {
+        [self onInputMethodChanged];
+    }
 }
 
 
