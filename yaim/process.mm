@@ -10,10 +10,6 @@
 #import "AppDelegate.h"
 #import <IOKit/hidsystem/ev_keymap.h>
 
-#define OTHER_CONTROL_KEY (_flag & kCGEventFlagMaskCommand) || (_flag & kCGEventFlagMaskControl) || \
-                          (_flag & kCGEventFlagMaskAlternate) || (_flag & kCGEventFlagMaskSecondaryFn) || \
-                          (_flag & kCGEventFlagMaskNumericPad) || (_flag & kCGEventFlagMaskHelp)
-
 #define MAX_UNICODE_STRING 20
 
 extern AppDelegate* appDelegate;
@@ -96,8 +92,12 @@ extern "C" {
     }
 
     void SendBackspace() {
-        CGEventTapPostEvent(_proxy, CGEventCreateKeyboardEvent (myEventSource, 51, true));
-        CGEventTapPostEvent(_proxy, CGEventCreateKeyboardEvent (myEventSource, 51, false));
+        CGEventRef _newEventDown = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, true);
+        CGEventRef _newEventUp = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, false);
+        CGEventTapPostEvent(_proxy, _newEventDown);
+        CGEventTapPostEvent(_proxy, _newEventUp);
+        CFRelease(_newEventDown);
+        CFRelease(_newEventUp);
     }
 
     void SendNewCharString(const Uint16& offset=0) {
@@ -240,11 +240,17 @@ extern "C" {
         // handle keyboard
         if (type == kCGEventKeyDown) {
             // send event signal to Engine
+            int controlKeys = (_flag & kCGEventFlagMaskCommand) ||
+                (_flag & kCGEventFlagMaskControl) ||
+                (_flag & kCGEventFlagMaskAlternate) ||
+                (_flag & kCGEventFlagMaskSecondaryFn) ||
+                (_flag & kCGEventFlagMaskNumericPad) ||
+                (_flag & kCGEventFlagMaskHelp);
             vKeyHandleEvent(vKeyEvent::Keyboard,
                             vKeyEventState::KeyDown,
                             _keycode,
                             _flag & kCGEventFlagMaskShift ? 1 : (_flag & kCGEventFlagMaskAlphaShift ? 2 : 0),
-                            OTHER_CONTROL_KEY);
+                            controlKeys);
             if (pData->code == vDoNothing) { // do nothing
                 return event;
             } else if (pData->code == vWillProcess || pData->code == vRestore) { // handle result signal
