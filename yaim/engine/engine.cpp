@@ -58,7 +58,7 @@ list<vector<Uint32>> _typingStates;
 vector<Uint32> _typingStatesData;
 
 /**
- * Use for restore key if invalid word có
+ * use for restore key press esc
  */
 Uint32 KeyStates[MAX_BUFF];
 Byte _stateIndex = 0;
@@ -834,6 +834,23 @@ void handleMainKey(const Uint16& data, const bool& isCaps) {
     }
 }
 
+bool restoreTyping() {
+    for (int ii = 0; ii < _index; ii++) {
+        if (TypingWord[ii] & MARK_MASK || TypingWord[ii] & TONE_MASK || TypingWord[ii] & TONEW_MASK) {
+            hCode = vRestore;
+            hBPC = _index;
+            hNCC = _stateIndex;
+            for (int i = 0; i < _stateIndex; i++) {
+                TypingWord[i] = KeyStates[i];
+                hData[_stateIndex - 1 - i] = TypingWord[i];
+            }
+            _index = _stateIndex;
+            return true;
+        }
+    }
+    return false;
+}
+
 void vKeyHandleEvent(const vKeyEvent& event,
                      const vKeyEventState& state,
                      const Uint16& data,
@@ -844,7 +861,11 @@ void vKeyHandleEvent(const vKeyEvent& event,
     bool _isCaps = (capsStatus == 1 || // shift
                     capsStatus == 2); // caps lock
 
-    if ((IS_NUMBER_KEY(data) && capsStatus == 1) ||
+    if (data == KEY_ESC) {
+        if (!restoreTyping()) {
+            hCode = vDoNothing;
+        }
+    } else if ((IS_NUMBER_KEY(data) && capsStatus == 1) ||
         otherControlKey ||
         isWordBreak(event, state, data) ||
         (_index == 0 && IS_NUMBER_KEY(data))) {
