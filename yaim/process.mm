@@ -262,10 +262,8 @@ extern "C" {
                 }
 
                 // send backspace
-                if (pData->backspaceCount > 0 && pData->backspaceCount < MAX_BUFF) {
-                    for (int _i = 0; _i < pData->backspaceCount; _i++) {
-                        SendBackspace();
-                    }
+                for (int _i = 0; pData->backspaceCount > 0 && _i < pData->backspaceCount; _i++) {
+                    SendBackspace();
                 }
 
                 // send new character

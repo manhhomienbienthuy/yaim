@@ -85,14 +85,8 @@ void* vKeyInit() {
 }
 
 bool isWordBreak(const vKeyEvent& event, const vKeyEventState& state, const Uint16& data) {
-    if (event == vKeyEvent::Mouse)
-        return true;
-    for (int i = 0; i < _breakCode.size(); i++) {
-        if (_breakCode[i] == data) {
-            return true;
-        }
-    }
-    return false;
+    return (event == vKeyEvent::Mouse ||
+            std::find(_breakCode.begin(), _breakCode.end(), data) != _breakCode.end());
 }
 
 void setKeyData(const Byte& index, const Uint16& keyCode, const bool& isCaps) {
@@ -629,9 +623,7 @@ void insertW(const Uint16& data, const bool& isCaps) {
     hCode = vWillProcess;
     hBPC = 0;
 
-    for (i = _index - 1; i >= 0; i--) {
-        if (i < VSI)
-            break;
+    for (i = _index - 1; i >= VSI; i--) {
         hBPC++;
         switch (CHR(i)) {
             case KEY_A:
@@ -865,36 +857,14 @@ void vKeyHandleEvent(const vKeyEvent& event,
         if (!restoreTyping()) {
             hCode = vDoNothing;
         }
-    } else if ((IS_NUMBER_KEY(data) && capsStatus == 1) ||
-        otherControlKey ||
-        isWordBreak(event, state, data) ||
-        (_index == 0 && IS_NUMBER_KEY(data))) {
+    } else if (otherControlKey || isWordBreak(event, state, data)) {
         hCode = vDoNothing;
         hBPC = 0;
         hNCC = 0;
         hExt = 1; // word break
-
-        bool _isCharKeyCode = (state == KeyDown &&
-                               std::find(_charKeyCode.begin(),
-                                         _charKeyCode.end(),
-                                         data) != _charKeyCode.end());
-        if (!_isCharKeyCode) { // clear all line cache
-            _specialChar.clear();
-            _typingStates.clear();
-        } else { // check and save current word
-            if (_spaceCount > 0) {
-                saveWord(KEY_SPACE, _spaceCount);
-                _spaceCount = 0;
-            } else {
-                saveWord();
-            }
-            _specialChar.push_back(data | (_isCaps ? CAPS_MASK : 0));
-            hExt = 3;// normal word
-        }
-
-        if (hCode == vDoNothing) {
-            startNewSession();
-        }
+        _specialChar.clear();
+        _typingStates.clear();
+        startNewSession();
     } else if (data == KEY_SPACE) {
         hCode = vDoNothing;
         _spaceCount++;
@@ -975,11 +945,7 @@ void vKeyHandleEvent(const vKeyEvent& event,
         }
 
         if (data != KEY_D) {
-            if (hCode == vDoNothing) {
-                checkGrammar(-1);
-            } else {
-                checkGrammar(0);
-            }
+            checkGrammar(0 - (hCode == vDoNothing));
         }
 
         if (hCode == vRestore) {
