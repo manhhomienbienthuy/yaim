@@ -14,6 +14,7 @@
 using namespace std;
 
 #define MAX_BUFF 32
+#define MAX_WORD 3
 
 enum vKeyEvent {
     Keyboard,

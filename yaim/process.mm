@@ -253,8 +253,7 @@ extern "C" {
                             controlKeys);
             if (pData->code == vDoNothing) { // do nothing
                 return event;
-            } else if (pData->code == vWillProcess || pData->code == vRestore) { // handle result signal
-
+            } else {
                 // fix autocomplete
                 if (pData->extCode != 4) {
                     SendEmptyCharacter();
@@ -262,7 +261,7 @@ extern "C" {
                 }
 
                 // send backspace
-                for (int _i = 0; pData->backspaceCount > 0 && _i < pData->backspaceCount; _i++) {
+                for (int _i = 0; _i < pData->backspaceCount; _i++) {
                     SendBackspace();
                 }
 
