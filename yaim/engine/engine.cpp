@@ -826,21 +826,23 @@ void handleMainKey(const Uint16& data, const bool& isCaps) {
     }
 }
 
-bool restoreTyping() {
-    for (int ii = 0; ii < _index; ii++) {
-        if (TypingWord[ii] & MARK_MASK || TypingWord[ii] & TONE_MASK || TypingWord[ii] & TONEW_MASK) {
-            hCode = vRestore;
-            hBPC = _index;
-            hNCC = _stateIndex;
-            for (int i = 0; i < _stateIndex; i++) {
-                TypingWord[i] = KeyStates[i];
-                hData[_stateIndex - 1 - i] = TypingWord[i];
-            }
-            _index = _stateIndex;
-            return true;
+void restoreTyping() {
+    if (_index < _stateIndex) {
+        hCode = vRestore;
+        hBPC = _index + _spaceCount;
+        hNCC = _stateIndex;
+        for (int i = 0; i < _stateIndex; i++) {
+            TypingWord[i] = KeyStates[i];
+            hData[_stateIndex - 1 - i] = TypingWord[i];
         }
+        _index = _stateIndex;
+        if (_spaceCount > 0) {
+            _spaceCount = 0;
+            _typingStates.pop_back();
+        }
+    } else {
+        hCode = vDoNothing;
     }
-    return false;
 }
 
 void vKeyHandleEvent(const vKeyEvent& event,
@@ -854,9 +856,7 @@ void vKeyHandleEvent(const vKeyEvent& event,
                     capsStatus == 2); // caps lock
 
     if (data == KEY_ESC) {
-        if (!restoreTyping()) {
-            hCode = vDoNothing;
-        }
+        restoreTyping();
     } else if (otherControlKey || isWordBreak(event, state, data)) {
         hCode = vDoNothing;
         hBPC = 0;
