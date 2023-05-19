@@ -23,7 +23,6 @@ bool isABCKeyboard = true;
 @implementation AppDelegate
 
 NSStatusItem *statusItem;
-NSMenu *theMenu;
 
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -48,11 +47,6 @@ NSMenu *theMenu;
 }
 
 
-- (void)menuDidClose:(NSMenu *)_menu {
-    statusItem.menu = nil;
-}
-
-
 - (void)createStatusBarMenu {
     NSStatusBar *statusBar = [NSStatusBar systemStatusBar];
     statusItem = [statusBar statusItemWithLength:NSVariableStatusItemLength];
@@ -67,20 +61,8 @@ NSMenu *theMenu;
 - (void)menuAction:(id)sender {
     NSEvent *event = [[NSApplication sharedApplication] currentEvent];
 
-    if (event.type == NSEventTypeRightMouseDown) {
-        if (!theMenu) {
-            theMenu = [[NSMenu alloc] initWithTitle:@""];
-            [theMenu setDelegate:self];
-            [theMenu setAutoenablesItems:NO];
-            [theMenu addItemWithTitle:@"VIE / EN"
-                               action:@selector(onInputMethodChanged)
-                        keyEquivalent:@"e"];
-            [theMenu addItemWithTitle:@"Thoát"
-                               action:@selector(terminate:)
-                        keyEquivalent:@"q"];
-        }
-        statusItem.menu = theMenu;
-        [statusItem.button performClick:nil];
+    if (event.type == NSEventTypeRightMouseDown && (event.modifierFlags & NSEventModifierFlagCommand)) {
+        [NSApp terminate:nil];
     } else {
         [self onInputMethodChanged];
     }
