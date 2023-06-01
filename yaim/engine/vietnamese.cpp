@@ -329,18 +329,6 @@ vector<Uint16> _standaloneWbad = {
     KEY_W, KEY_E, KEY_Y, KEY_F, KEY_J, KEY_K, KEY_Z
 };
 
-vector<vector<Uint16>> _doubleWAllowed = {
-    {KEY_T, KEY_R},
-    {KEY_T, KEY_H},
-    {KEY_C, KEY_H},
-    {KEY_N, KEY_H},
-    {KEY_N, KEY_G},
-    {KEY_K, KEY_H},
-    {KEY_G, KEY_I},
-    {KEY_P, KEY_H},
-    {KEY_G, KEY_H},
-};
-
 /*
  * 0: Unicode
  * 1: TCVN3

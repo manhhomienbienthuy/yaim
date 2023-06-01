@@ -51,16 +51,7 @@ struct vKeyHookState {
     Byte code;
     Byte backspaceCount;
     Byte newCharCount;
-
-    /**
-     * 1: Word Break
-     * 2: Delete key
-     * 3: Normal key
-     * 4: Should not send empty character
-     */
-    Byte extCode;
-
-    Uint32 charData[MAX_BUFF]; // new character will be put in queue
+    Uint32 charData[MAX_BUFF];
 };
 
 #include "keycodes.h"
@@ -78,7 +69,7 @@ struct vKeyHookState {
  * 4: Dấu Ngã - ã
  * 5: dấu Nặng - ạ
  */
-#define MARK1_MASK                              0x80000
+#define MARK1_MASK                              0x080000
 #define MARK2_MASK                              0x100000
 #define MARK3_MASK                              0x200000
 #define MARK4_MASK                              0x400000
@@ -97,16 +88,6 @@ struct vKeyHookState {
 #define CHAR_CODE_MASK                          0x2000000
 
 #define PURE_CHARACTER_MASK                     0x80000000
-
-// Utilities macro
-#define IS_CONSONANT(keyCode) !(keyCode == KEY_A || keyCode == KEY_E || keyCode == KEY_U || keyCode == KEY_Y || keyCode == KEY_I || keyCode == KEY_O)
-#define CHR(index) (Uint16)TypingWord[index]
-#define IS_SPECIALKEY(keyCode) \
-        (keyCode == KEY_W || keyCode == KEY_E || keyCode == KEY_R || keyCode == KEY_O || \
-         keyCode == KEY_A || keyCode == KEY_S || keyCode == KEY_D || keyCode == KEY_F || \
-         keyCode == KEY_J || keyCode == KEY_Z || keyCode == KEY_X || keyCode == KEY_W)
-
-#define IS_NUMBER_KEY(code) (code == KEY_1 || code == KEY_2 || code == KEY_3 || code == KEY_4 || code == KEY_5 || code == KEY_6 || code == KEY_7 || code == KEY_8 || code == KEY_9 || code == KEY_0)
 
 
 #endif /* datatypes_h */

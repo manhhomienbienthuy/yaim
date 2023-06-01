@@ -47,38 +47,6 @@ extern "C" {
         vKeyHandleEvent(vKeyEvent::Mouse, vKeyEventState::MouseDown, 0);
     }
 
-    void SendKeyCode(Uint32 data) {
-        UniChar _newChar = (Uint16)data;
-        CGEventRef _newEventDown, _newEventUp;
-
-        if (!(data & CHAR_CODE_MASK)) {
-            _newEventDown = CGEventCreateKeyboardEvent(myEventSource, _newChar, true);
-            _newEventUp = CGEventCreateKeyboardEvent(myEventSource, _newChar, false);
-            CGEventFlags _privateFlag = CGEventGetFlags(_newEventDown);
-
-            if (data & CAPS_MASK) {
-                _privateFlag |= kCGEventFlagMaskShift;
-            } else {
-                _privateFlag &= ~kCGEventFlagMaskShift;
-            }
-            _privateFlag |= kCGEventFlagMaskNonCoalesced;
-
-            CGEventSetFlags(_newEventDown, _privateFlag);
-            CGEventSetFlags(_newEventUp, _privateFlag);
-            CGEventTapPostEvent(_proxy, _newEventDown);
-            CGEventTapPostEvent(_proxy, _newEventUp);
-        } else {
-            _newEventDown = CGEventCreateKeyboardEvent(myEventSource, 0, true);
-            _newEventUp = CGEventCreateKeyboardEvent(myEventSource, 0, false);
-            CGEventKeyboardSetUnicodeString(_newEventDown, 1, &_newChar);
-            CGEventKeyboardSetUnicodeString(_newEventUp, 1, &_newChar);
-            CGEventTapPostEvent(_proxy, _newEventDown);
-            CGEventTapPostEvent(_proxy, _newEventUp);
-        }
-        CFRelease(_newEventDown);
-        CFRelease(_newEventUp);
-    }
-
     void SendEmptyCharacter() {
         UniChar _newChar = 0x202F; // empty char
         CGEventRef _newEventDown = CGEventCreateKeyboardEvent(myEventSource, 0, true);
@@ -94,64 +62,36 @@ extern "C" {
     void SendBackspace() {
         CGEventRef _newEventDown = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, true);
         CGEventRef _newEventUp = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, false);
-        CGEventTapPostEvent(_proxy, _newEventDown);
-        CGEventTapPostEvent(_proxy, _newEventUp);
+        for (int _i = 0; _i < pData->backspaceCount; _i++) {
+            CGEventTapPostEvent(_proxy, _newEventDown);
+            CGEventTapPostEvent(_proxy, _newEventUp);
+        }
         CFRelease(_newEventDown);
         CFRelease(_newEventUp);
     }
 
-    void SendNewCharString(const Uint16& offset=0) {
-        int _i = 0;
-        Uint16 _newCharSize = pData->newCharCount;
-        bool _willContinuteSending = false;
-        bool _willSendControlKey = false;
-        Uint16 _newCharString[MAX_UNICODE_STRING];
-
-        if (_newCharSize > 0) {
-            for (int _j = pData->newCharCount - 1 - offset; _j >= 0; _j--) {
-                if (_i >= 16) {
-                    _willContinuteSending = true;
-                    break;
-                }
-
-                Uint32 _tempChar = pData->charData[_j];
+    void SendNewCharString() {
+        if (pData->newCharCount > 0) {
+            Uint16 _newCharString[MAX_UNICODE_STRING];
+            for (int _i = pData->newCharCount - 1; _i >= 0; _i--) {
+                Uint32 _tempChar = pData->charData[_i];
                 if (_tempChar & PURE_CHARACTER_MASK) {
-                    _newCharString[_i++] = _tempChar;
+                    _newCharString[pData->newCharCount - 1 - _i] = _tempChar;
                 } else if (!(_tempChar & CHAR_CODE_MASK)) {
-                    _newCharString[_i++] = keyCodeToCharacter(_tempChar);
+                    _newCharString[pData->newCharCount - 1 - _i] = keyCodeToCharacter(_tempChar);
                 } else {
-                    _newCharString[_i++] = _tempChar;
+                    _newCharString[pData->newCharCount - 1 - _i] = _tempChar;
                 }
-            }// end for
-        }
-
-        // if is restore
-        if (!_willContinuteSending && pData->code == vRestore) {
-            if (keyCodeToCharacter(_keycode) != 0) {
-                _newCharSize++;
-                _newCharString[_i++] = keyCodeToCharacter(_keycode | ((_flag & kCGEventFlagMaskAlphaShift) || (_flag & kCGEventFlagMaskShift) ? CAPS_MASK : 0));
-            } else {
-                _willSendControlKey = true;
             }
-        }
 
-        CGEventRef _newEventDown = CGEventCreateKeyboardEvent(myEventSource, 0, true);
-        CGEventRef _newEventUp = CGEventCreateKeyboardEvent(myEventSource, 0, false);
-        CGEventKeyboardSetUnicodeString(_newEventDown, _willContinuteSending ? 16 : _newCharSize - offset, _newCharString);
-        CGEventKeyboardSetUnicodeString(_newEventUp, _willContinuteSending ? 16 : _newCharSize - offset, _newCharString);
-        CGEventTapPostEvent(_proxy, _newEventDown);
-        CGEventTapPostEvent(_proxy, _newEventUp);
-        CFRelease(_newEventDown);
-        CFRelease(_newEventUp);
-
-        if (_willContinuteSending) {
-            SendNewCharString(16);
-        }
-
-        // the case when hCode is vRestore, the word is invalid and last key is
-        // control key such as TAB, LEFT ARROW, RIGHT ARROW,...
-        if (_willSendControlKey) {
-            SendKeyCode(_keycode);
+            CGEventRef _newEventDown = CGEventCreateKeyboardEvent(myEventSource, 0, true);
+            CGEventRef _newEventUp = CGEventCreateKeyboardEvent(myEventSource, 0, false);
+            CGEventKeyboardSetUnicodeString(_newEventDown, pData->newCharCount, _newCharString);
+            CGEventKeyboardSetUnicodeString(_newEventUp, pData->newCharCount, _newCharString);
+            CGEventTapPostEvent(_proxy, _newEventDown);
+            CGEventTapPostEvent(_proxy, _newEventUp);
+            CFRelease(_newEventDown);
+            CFRelease(_newEventUp);
         }
     }
 
@@ -240,7 +180,7 @@ extern "C" {
         // handle keyboard
         if (type == kCGEventKeyDown) {
             // send event signal to Engine
-            int controlKeys = (_flag & kCGEventFlagMaskCommand) ||
+            bool controlKeys = (_flag & kCGEventFlagMaskCommand) ||
                 (_flag & kCGEventFlagMaskControl) ||
                 (_flag & kCGEventFlagMaskAlternate) ||
                 (_flag & kCGEventFlagMaskSecondaryFn) ||
@@ -251,25 +191,15 @@ extern "C" {
                             _keycode,
                             _flag & kCGEventFlagMaskShift ? 1 : (_flag & kCGEventFlagMaskAlphaShift ? 2 : 0),
                             controlKeys);
-            if (pData->code == vDoNothing) { // do nothing
+            if (pData->code == vDoNothing) {
                 return event;
             } else {
-                // fix autocomplete
-                if (pData->extCode != 4) {
-                    SendEmptyCharacter();
-                    pData->backspaceCount++;
-                }
-
-                // send backspace
-                for (int _i = 0; _i < pData->backspaceCount; _i++) {
-                    SendBackspace();
-                }
-
-                // send new character
+                SendEmptyCharacter();
+                pData->backspaceCount++;
+                SendBackspace();
                 SendNewCharString();
+                return pData->code == vRestore ? event : nil;
             }
-
-            return nil;
         }
 
         return event;
