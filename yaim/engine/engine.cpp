@@ -198,25 +198,19 @@ Uint32 getCharacterCode(const Uint32& data) {
         } else if (data & TONEW_MASK) {
             key |= TONEW_MASK;
         }
-        if (_codeTable.find(key) == _codeTable.end())
-            return data; // not found
 
-        return _codeTable[key][markElem] | CHAR_CODE_MASK;
-    } else { // doesn't has mark
-        if (_codeTable.find(key) == _codeTable.end())
-            return data; // not found
-
-        if (data & TONE_MASK) {
-            return _codeTable[key][capsElem] | CHAR_CODE_MASK;
+        if (_codeTable.find(key) != _codeTable.end()) {
+            return _codeTable[key][markElem] | CHAR_CODE_MASK;
         }
-        if (data & TONEW_MASK) {
-            return _codeTable[key][capsElem + 2] | CHAR_CODE_MASK;
-        }
-        return data; // not found
+    } else if ((data & (TONE_MASK | TONEW_MASK)) &&
+               (_codeTable.find(key) != _codeTable.end())) {
+        return _codeTable[key][capsElem + (data & TONE_MASK ? 0 : 2)] | CHAR_CODE_MASK;
     }
+
+    return data;
 }
 
-void findAndCalculateVowel(const bool& forGrammar=false) {
+void findAndCalculateVowel(const bool& isCheckSpelling=false) {
     vowelCount = 0;
     VSI = VEI = 0;
     for (int i = _index - 1; i >= 0; i--) {
@@ -224,22 +218,18 @@ void findAndCalculateVowel(const bool& forGrammar=false) {
             if (vowelCount > 0)
                 break;
         } else { // is vowel
-            if (vowelCount == 0)
+            if (CHR(i) == KEY_U && i && CHR(i - 1) == KEY_Q) {
+                break;
+            }
+            if (!isCheckSpelling && CHR(i) == KEY_I && i && CHR(i - 1) == KEY_G && vowelCount > 0) {
+                break;
+            }
+            if (vowelCount == 0) {
                 VEI = i;
-            if (!forGrammar) {
-                if ((i - 1 >= 0 && (CHR(i) == KEY_I && CHR(i - 1) == KEY_G)) ||
-                    (i - 1 >= 0 && (CHR(i) == KEY_U && CHR(i - 1) == KEY_Q))) {
-                    break;
-                }
             }
             VSI = i;
             vowelCount++;
         }
-    }
-    // don't count "u" at "q u" as a vowel
-    if (VSI - 1 >= 0 && CHR(VSI) == KEY_U && CHR(VSI - 1) == KEY_Q) {
-        VSI++;
-        vowelCount--;
     }
 }
 
@@ -254,6 +244,7 @@ void removeMark(const Uint16& data, const bool& isCaps) {
                     hData[_index - 1 - j] = GET(TypingWord[j]);
                 }
                 hNCC = hBPC = _index - VSI;
+                _stateIndex -= 2;
                 return;
             }
         }
@@ -281,11 +272,7 @@ bool canHasEndConsonant() {
 }
 
 void calcMarkPosition() {
-    // default
-    if (vowelCount == 0 && CHR(VEI) == KEY_I)
-        VWSM = VEI;
-    else
-        VWSM = VSI;
+    VWSM = VSI;
 
     // rule 2
     if (vowelCount == 3 || (VEI + 1 < _index && !isKeyIn(CHR(VEI + 1), _vowels) && canHasEndConsonant())) {
@@ -317,10 +304,11 @@ void insertMark(const Uint32& markMask, const bool& canModifyFlag=true) {
     if (vowelCount == 1) {
         VWSM = VEI;
         hBPC = _index - VEI;
-    } else if (TypingWord[VEI] & (TONE_MASK | TONEW_MASK)) {
-        VWSM = VEI;
     } else {
         calcMarkPosition();
+        if (TypingWord[VEI] & (TONE_MASK | TONEW_MASK)) {
+            VWSM = VEI;
+        }
     }
 
     // send data
@@ -335,7 +323,10 @@ void insertMark(const Uint32& markMask, const bool& canModifyFlag=true) {
         }
     } else {
         // remove other mark
-        TypingWord[VWSM] &= ~MARK_MASK;
+        if (TypingWord[VWSM] & MARK_MASK) {
+            TypingWord[VWSM] &= ~MARK_MASK;
+            TypingKeys[_stateIndex - 1] = TypingKeys[--_stateIndex];
+        }
 
         // add mark
         TypingWord[VWSM] |= markMask;
@@ -460,12 +451,13 @@ void insertW(const Uint16& data, const bool& isCaps) {
         hBPC = _index - VSI;
         hNCC = hBPC;
 
-        if (((TypingWord[VSI] & TONEW_MASK) && (TypingWord[VSI+1] & TONEW_MASK)) ||
-            ((TypingWord[VSI] & TONEW_MASK) && CHR(VSI+1) == KEY_I) ||
-            ((TypingWord[VSI] & TONEW_MASK) && CHR(VSI+1) == KEY_A)){
+        if ((TypingWord[VSI] & TONEW_MASK && (TypingWord[VSI + 1] & TONEW_MASK ||
+                                             CHR(VSI + 1) == KEY_I ||
+                                             CHR(VSI + 1) == KEY_A ||
+                                             CHR(VSI + 1) == KEY_U)) ||
+            (!(TypingWord[VSI] & TONEW_MASK) && TypingWord[VSI + 1] & TONEW_MASK && VSI == _index - 2)) {
             // restore
             hCode = vRestore;
-
             for (i = VSI; i < _index; i++) {
                 TypingWord[i] &= ~TONEW_MASK;
                 hData[_index - 1 - i] = GET(TypingWord[i]) & ~STANDALONE_MASK;
@@ -473,26 +465,18 @@ void insertW(const Uint16& data, const bool& isCaps) {
         } else {
             hCode = vWillProcess;
 
-            if ((CHR(VSI) == KEY_U && CHR(VSI+1) == KEY_O)) {
-                if (VSI && TypingWord[VSI - 1] == KEY_H) {
-                    TypingWord[VSI+1] |= TONEW_MASK;
-                    if (VSI + 2 < _index && CHR(VSI + 2) == KEY_N) {
-                        TypingWord[VSI] |= TONEW_MASK;
-                    }
-                } else if (VSI - 1 >= 0 && TypingWord[VSI - 1] == KEY_Q) {
-                    TypingWord[VSI+1] |= TONEW_MASK;
-                } else {
+            if ((CHR(VSI) == KEY_U && CHR(VSI + 1) == KEY_O)) {
+                TypingWord[VSI + 1] |= TONEW_MASK;
+                if (!VSI || TypingWord[VSI - 1] != KEY_H || VSI < _index - 2) {
                     TypingWord[VSI] |= TONEW_MASK;
-                    TypingWord[VSI+1] |= TONEW_MASK;
                 }
-            } else if ((CHR(VSI) == KEY_U && CHR(VSI+1) == KEY_A) ||
-                       (CHR(VSI) == KEY_U && CHR(VSI+1) == KEY_I) ||
-                       (CHR(VSI) == KEY_U && CHR(VSI+1) == KEY_U) ||
-                       (CHR(VSI) == KEY_O && CHR(VSI+1) == KEY_I)) {
+            } else if ((CHR(VSI) == KEY_U && CHR(VSI + 1) == KEY_A) ||
+                       (CHR(VSI) == KEY_U && CHR(VSI + 1) == KEY_I) ||
+                       (CHR(VSI) == KEY_U && CHR(VSI + 1) == KEY_U) ||
+                       (CHR(VSI) == KEY_O && CHR(VSI + 1) == KEY_I)) {
                 TypingWord[VSI] |= TONEW_MASK;
-            } else if ((CHR(VSI) == KEY_I && CHR(VSI+1) == KEY_O) ||
-                       (CHR(VSI) == KEY_O && CHR(VSI+1) == KEY_A)) {
-                TypingWord[VSI+1] |= TONEW_MASK;
+            } else if (CHR(VSI) == KEY_O && CHR(VSI + 1) == KEY_A) {
+                TypingWord[VSI + 1] |= TONEW_MASK;
             } else {
                 hCode = vDoNothing;
                 addToTypingWord(data, isCaps);
@@ -597,7 +581,7 @@ void restoreTyping() {
     }
 }
 
-void checkGrammar(const int& deltaBackSpace) {
+void checkSpelling(const int& deltaBackSpace) {
     if (_index <= 1 || _index >= MAX_BUFF)
         return;
 
@@ -606,21 +590,20 @@ void checkGrammar(const int& deltaBackSpace) {
         return;
 
     bool needCorrect = false;
-    int i;
+    int i = 0;
 
-    // if N key for case: "thuơn", "ưoi", "ưom", "ưoc"
+    // check for case: "uơn", "ưoi", "ưom", "ưoc", "uơu"
     if (_index >= 3) {
         for (i = _index - 1; i >= 0; i--) {
-            if (CHR(i) == KEY_N || CHR(i) == KEY_C || CHR(i) == KEY_I ||
-                CHR(i) == KEY_M || CHR(i) == KEY_P || CHR(i) == KEY_T) {
-                if (i - 2 >= 0 && CHR(i - 1) == KEY_O && CHR(i - 2) == KEY_U) {
-                    if ((TypingWord[i - 1] & TONEW_MASK) ^ (TypingWord[i - 2] & TONEW_MASK)) {
-                        TypingWord[i - 2] |= TONEW_MASK;
-                        TypingWord[i - 1] |= TONEW_MASK;
-                        needCorrect = true;
-                        break;
-                    }
-                }
+            if (CHR(i) == KEY_U && i < _index - 2 && CHR(i + 1) == KEY_O &&
+                (CHR(i + 2) == KEY_N || CHR(i + 2) == KEY_C || CHR(i + 2) == KEY_I ||
+                 CHR(i + 2) == KEY_M || CHR(i + 2) == KEY_P || CHR(i + 2) == KEY_T ||
+                 CHR(i + 2) == KEY_U) &&
+                ((TypingWord[i] & TONEW_MASK) ^ (TypingWord[i + 1] & TONEW_MASK))) {
+                TypingWord[i] |= TONEW_MASK;
+                TypingWord[i + 1] |= TONEW_MASK;
+                needCorrect = true;
+                break;
             }
         }
     }
@@ -643,12 +626,12 @@ void checkGrammar(const int& deltaBackSpace) {
     if (needCorrect) {
         if (hCode ==vDoNothing)
             hCode = vWillProcess;
-
-        for (i = _index - 1; i >= VSI; i--) {
-            hData[_index - 1 - i] = GET(TypingWord[i]);
+        int right = VSI < i ? VSI : i;
+        for (int j = _index - 1; j >= right; j--) {
+            hData[_index - 1 - j] = GET(TypingWord[j]);
         }
-        hNCC = _index - VSI;
-        hBPC = _index - VSI + deltaBackSpace;
+        hNCC = _index - right;
+        hBPC = _index - right + deltaBackSpace;
     }
 }
 
@@ -682,7 +665,7 @@ void vKeyHandleEvent(const vKeyEvent& event,
             restoreLastTypingState();
         } else {
             _stateIndex--;
-            checkGrammar(1);
+            checkSpelling(1);
         }
     } else { // start and check key
         if (_spaceCount > 0) {
@@ -724,7 +707,7 @@ void vKeyHandleEvent(const vKeyEvent& event,
         }
 
         if (data != KEY_D) {
-            checkGrammar(0 - (hCode == vDoNothing));
+            checkSpelling(0 - (hCode == vDoNothing));
         }
 
         if (hCode == vRestore) {
