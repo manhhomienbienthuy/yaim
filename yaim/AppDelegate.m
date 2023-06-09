@@ -10,7 +10,7 @@
 #import "manager.h"
 
 AppDelegate* appDelegate;
-extern void RequestNewSession(void);
+extern void restartEngine(void);
 
 bool isVietnamese = true;
 bool isABCKeyboard = true;
@@ -80,6 +80,7 @@ NSStatusItem *statusItem;
 - (void)onInputMethodChanged {
     isVietnamese = !isVietnamese;
     [self updateIcon];
+    restartEngine();
 }
 
 
@@ -99,7 +100,7 @@ NSStatusItem *statusItem;
 
 
 - (void)receiveActiveSpaceChanged:(NSNotification*)note {
-    RequestNewSession();
+    restartEngine();
 }
 
 

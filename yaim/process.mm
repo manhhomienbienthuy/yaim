@@ -10,18 +10,13 @@
 #import "AppDelegate.h"
 #import <IOKit/hidsystem/ev_keymap.h>
 
-#define MAX_UNICODE_STRING 20
-
 extern AppDelegate* appDelegate;
 
 extern "C" {
     CGEventSourceRef myEventSource = nil;
     vKeyHookState* pData;
-    CGKeyCode _keycode;
-    CGEventFlags _flag;
-    CGEventTapProxy _proxy;
     BOOL _isFnPressed = false;
-    map<int, int> FuncKeyMap = {
+    map<CGKeyCode, CGKeyCode> FuncKeyMap = {
         {kVK_F1, NX_KEYTYPE_BRIGHTNESS_DOWN},
         {kVK_F2, NX_KEYTYPE_BRIGHTNESS_UP},
 //        {kVK_F3, NX_KEYTYPE_CONTRAST_DOWN},
@@ -35,19 +30,23 @@ extern "C" {
         {kVK_F11, NX_KEYTYPE_SOUND_DOWN},
         {kVK_F12, NX_KEYTYPE_SOUND_UP},
     };
-    vector<int> ShortcutKeys = {kVK_Shift, kVK_RightShift, kVK_Control, kVK_RightControl};
+    vector<CGKeyCode> ShortcutKeys = {kVK_Shift, kVK_RightShift, kVK_Control, kVK_RightControl};
+    vector<CGKeyCode> AlphaKeys = {kVK_ANSI_A, kVK_ANSI_B, kVK_ANSI_C, kVK_ANSI_D, kVK_ANSI_E,
+        kVK_ANSI_F, kVK_ANSI_G, kVK_ANSI_H, kVK_ANSI_I, kVK_ANSI_J, kVK_ANSI_K, kVK_ANSI_L,
+        kVK_ANSI_M, kVK_ANSI_N, kVK_ANSI_O, kVK_ANSI_P, kVK_ANSI_Q, kVK_ANSI_R, kVK_ANSI_S,
+        kVK_ANSI_T, kVK_ANSI_U, kVK_ANSI_V, kVK_ANSI_W, kVK_ANSI_X, kVK_ANSI_Y, kVK_ANSI_Z};
 
     void init() {
         myEventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
         pData = (vKeyHookState*)vKeyInit();
     }
 
-    void RequestNewSession() {
+    void restartEngine() {
         // send event signal to Engine
-        vKeyHandleEvent(vKeyEvent::Mouse, vKeyEventState::MouseDown, 0);
+        vKeyHandleEvent(0, false, true);
     }
 
-    void SendEmptyCharacter() {
+    void sendEmptyCharacter(CGEventTapProxy _proxy) {
         UniChar _newChar = 0x202F; // empty char
         CGEventRef _newEventDown = CGEventCreateKeyboardEvent(myEventSource, 0, true);
         CGEventRef _newEventUp = CGEventCreateKeyboardEvent(myEventSource, 0, false);
@@ -59,10 +58,10 @@ extern "C" {
         CFRelease(_newEventUp);
     }
 
-    void SendBackspace() {
+    void sendBackspaces(CGEventTapProxy _proxy) {
         CGEventRef _newEventDown = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, true);
         CGEventRef _newEventUp = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, false);
-        for (int _i = 0; _i < pData->backspaceCount; _i++) {
+        for (char _i = 0; _i < pData->backspaceCount + 1; _i++) {
             CGEventTapPostEvent(_proxy, _newEventDown);
             CGEventTapPostEvent(_proxy, _newEventUp);
         }
@@ -70,10 +69,10 @@ extern "C" {
         CFRelease(_newEventUp);
     }
 
-    void SendNewCharString() {
+    void sendCharData(CGEventTapProxy _proxy) {
         if (pData->newCharCount > 0) {
-            Uint16 _newCharString[MAX_UNICODE_STRING];
-            for (int _i = pData->newCharCount - 1; _i >= 0; _i--) {
+            Uint16 _newCharString[MAX_BUFF];
+            for (char _i = pData->newCharCount - 1; _i >= 0; _i--) {
                 Uint32 _tempChar = pData->charData[_i];
                 if (_tempChar & PURE_CHARACTER_MASK) {
                     _newCharString[pData->newCharCount - 1 - _i] = _tempChar;
@@ -95,7 +94,7 @@ extern "C" {
         }
     }
 
-    bool checkHotKey() {
+    bool checkHotKey(CGEventFlags _flag) {
         return (_flag & kCGEventFlagMaskControl) != 0 &&
             (_flag & kCGEventFlagMaskShift) != 0 &&
             (_flag & kCGEventFlagMaskAlternate) == 0 &&
@@ -112,15 +111,20 @@ extern "C" {
             return event;
         }
 
-        _flag = CGEventGetFlags(event);
-        _keycode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+        // handle mouse
+        if (type == kCGEventLeftMouseDown || type == kCGEventRightMouseDown || type == kCGEventLeftMouseDragged || type == kCGEventRightMouseDragged) {
+            restartEngine();
+            return event;
+        }
 
-        // switch language shortcut; convert hotkey
+        CGEventFlags _flag = CGEventGetFlags(event);
+        CGKeyCode _keycode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+
+        // switch language shortcut
         if (type == kCGEventFlagsChanged) {
             if ((std::find(ShortcutKeys.begin(), ShortcutKeys.end(), _keycode) != ShortcutKeys.end()) &&
-                checkHotKey()) {
+                checkHotKey(_flag)) {
                 [appDelegate onInputMethodChanged];
-                startNewSession();
                 return nil;
             }
             if (_keycode == kVK_Function) {
@@ -128,16 +132,9 @@ extern "C" {
             }
         }
 
-        // Also check correct event hooked
-        if ((type != kCGEventKeyDown) && (type != kCGEventKeyUp) &&
-            (type != kCGEventLeftMouseDown) && (type != kCGEventRightMouseDown) &&
-            (type != kCGEventLeftMouseDragged) && (type != kCGEventRightMouseDragged))
-            return event;
-
-
         if (_isFnPressed && type == kCGEventKeyDown && _flag & kCGEventFlagMaskSecondaryFn) {
             if (FuncKeyMap.find(_keycode) != FuncKeyMap.end()) {
-                int code = FuncKeyMap[_keycode];
+                CGKeyCode code = FuncKeyMap[_keycode];
                 CGEventRef _newEventDown = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
                                                                location:NSZeroPoint
                                                           modifierFlags:0xa00
@@ -164,44 +161,28 @@ extern "C" {
             }
         }
 
-        // if is in english mode
-        if (!isVietnamese || !isABCKeyboard) {
+        if (type != kCGEventKeyDown || !isVietnamese || !isABCKeyboard) {
             return event;
         }
 
-        // handle mouse
-        if (type == kCGEventLeftMouseDown || type == kCGEventRightMouseDown || type == kCGEventLeftMouseDragged || type == kCGEventRightMouseDragged) {
-            RequestNewSession();
+        // send event signal to Engine
+        bool _isModifier = (_flag & kCGEventFlagMaskCommand) ||
+            (_flag & kCGEventFlagMaskControl) ||
+            (_flag & kCGEventFlagMaskAlternate) ||
+            (_flag & kCGEventFlagMaskSecondaryFn) ||
+            (_flag & kCGEventFlagMaskNumericPad) ||
+            (_flag & kCGEventFlagMaskHelp);
+        bool _isCaps = (_flag & kCGEventFlagMaskShift) ||
+            (_flag & kCGEventFlagMaskAlphaShift &&
+             std::find(AlphaKeys.begin(), AlphaKeys.end(), _keycode) != AlphaKeys.end());
+        vKeyHandleEvent(_keycode, _isCaps, _isModifier);
+        if (pData->code == vDoNothing) {
             return event;
+        } else {
+            sendEmptyCharacter(proxy);
+            sendBackspaces(proxy);
+            sendCharData(proxy);
+            return pData->code == vRestore ? event : nil;
         }
-
-        _proxy = proxy;
-
-        // handle keyboard
-        if (type == kCGEventKeyDown) {
-            // send event signal to Engine
-            bool controlKeys = (_flag & kCGEventFlagMaskCommand) ||
-                (_flag & kCGEventFlagMaskControl) ||
-                (_flag & kCGEventFlagMaskAlternate) ||
-                (_flag & kCGEventFlagMaskSecondaryFn) ||
-                (_flag & kCGEventFlagMaskNumericPad) ||
-                (_flag & kCGEventFlagMaskHelp);
-            vKeyHandleEvent(vKeyEvent::Keyboard,
-                            vKeyEventState::KeyDown,
-                            _keycode,
-                            _flag & kCGEventFlagMaskShift ? 1 : (_flag & kCGEventFlagMaskAlphaShift ? 2 : 0),
-                            controlKeys);
-            if (pData->code == vDoNothing) {
-                return event;
-            } else {
-                SendEmptyCharacter();
-                pData->backspaceCount++;
-                SendBackspace();
-                SendNewCharString();
-                return pData->code == vRestore ? event : nil;
-            }
-        }
-
-        return event;
     }
 }

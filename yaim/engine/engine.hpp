@@ -9,43 +9,13 @@
 #ifndef engine_hpp
 #define engine_hpp
 
-#include <locale>
-#include <codecvt>
-
-#include "datatypes.h"
 #include "vietnamese.hpp"
 
 extern bool isVietnamese;
 extern bool isABCKeyboard;
 
-/**
- * Call this function first to receive data pointer
- */
 void* vKeyInit();
-
-/**
- * Convert engine character to real character
- */
-Uint32 getCharacterCode(const Uint32& data);
-
-/**
- * MAIN entry point for each key
- * event: mouse or keyboard event
- * state: additional state for event
- * data: key code
- * isCaps: caplock is on or shift key is pressing
- * otherControlKey: ctrl, option,... is pressing
- */
-void vKeyHandleEvent(const vKeyEvent& event,
-                     const vKeyEventState& state,
-                     const Uint16& data,
-                     const Uint8& capsStatus=0,
-                     const bool& otherControlKey=false);
-
-/**
- * Start a new word
- */
-void startNewSession();
+void vKeyHandleEvent(const Uint16&, const bool&, const bool&);
 
 
 #endif /* engine_hpp */

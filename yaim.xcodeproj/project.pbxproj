@@ -28,7 +28,6 @@
 		212339E029DAA19A000C48EE /* vietnamese.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = vietnamese.cpp; sourceTree = "<group>"; };
 		212339E129DAA19A000C48EE /* vietnamese.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = vietnamese.hpp; sourceTree = "<group>"; };
 		212339E329DAA1B6000C48EE /* datatypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = datatypes.h; sourceTree = "<group>"; };
-		212339E429DAA228000C48EE /* keycodes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = keycodes.h; sourceTree = "<group>"; };
 		212339E529DAA24D000C48EE /* engine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cpp; sourceTree = "<group>"; };
 		212339E629DAA24D000C48EE /* engine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = engine.hpp; sourceTree = "<group>"; };
 		212339E829DAA4AA000C48EE /* process.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = process.mm; sourceTree = "<group>"; };
@@ -88,7 +87,6 @@
 				212339E029DAA19A000C48EE /* vietnamese.cpp */,
 				212339E129DAA19A000C48EE /* vietnamese.hpp */,
 				212339E329DAA1B6000C48EE /* datatypes.h */,
-				212339E429DAA228000C48EE /* keycodes.h */,
 				212339E529DAA24D000C48EE /* engine.cpp */,
 				212339E629DAA24D000C48EE /* engine.hpp */,
 			);

@@ -10,6 +10,7 @@
 #define vietnamese_hpp
 
 #include "datatypes.h"
+#include <Carbon/Carbon.h>
 #include <vector>
 #include <map>
 
@@ -24,7 +25,7 @@ extern vector<vector<Uint16>> _doubleWAllowed;
 extern map<Uint32, vector<Uint16>> _codeTable;
 extern map<Uint32, Uint32> _characterMap;
 
-extern Uint16 keyCodeToCharacter(const Uint32& keyCode);
+Uint16 keyCodeToCharacter(const Uint32&);
 
 
 #endif /* vietnamese_hpp */

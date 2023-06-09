@@ -9,52 +9,26 @@
 #ifndef datatypes_h
 #define datatypes_h
 
-#include <vector>
-
-using namespace std;
-
 #define MAX_BUFF 32
 #define MAX_WORD 3
 
-enum vKeyEvent {
-    Keyboard,
-    Mouse
-};
-
-enum vKeyEventState {
-    KeyDown,
-    KeyUp,
-    MouseDown,
-    MouseUp
-};
-
 typedef unsigned char Byte;
-typedef signed char Int8;
-typedef unsigned char Uint8;
 typedef unsigned short Uint16;
 typedef unsigned int Uint32;
-typedef unsigned long int Uint64;
 
 enum HoolCodeState {
-    vDoNothing = 0, // do not do anything
-    vWillProcess,   // will reverse
-    vRestore,       // restore character to old char
+    vDoNothing = 0,
+    vWillProcess,
+    vRestore,
 };
 
 // bytes data for main program
 struct vKeyHookState {
-    /*
-     * 0: Do nothing
-     * 1: Process
-     * 2: Restore
-     */
-    Byte code;
+    HoolCodeState code;
     Byte backspaceCount;
     Byte newCharCount;
     Uint32 charData[MAX_BUFF];
 };
-
-#include "keycodes.h"
 
 // internal engine data
 #define CAPS_MASK                               0x10000
