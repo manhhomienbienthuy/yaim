@@ -9,12 +9,13 @@
 #ifndef datatypes_h
 #define datatypes_h
 
+#include <MacTypes.h>
+
 #define MAX_BUFF 32
 #define MAX_WORD 3
 
-typedef unsigned char Byte;
-typedef unsigned short Uint16;
-typedef unsigned int Uint32;
+//typedef unsigned short UInt16;
+//typedef unsigned int UInt32;
 
 enum HoolCodeState {
     vDoNothing = 0,
@@ -22,16 +23,15 @@ enum HoolCodeState {
     vRestore,
 };
 
-// bytes data for main program
+// data for main program
 struct vKeyHookState {
     HoolCodeState code;
-    Byte backspaceCount;
-    Byte newCharCount;
-    Uint32 charData[MAX_BUFF];
+    char backspaceCount;
+    char newCharCount;
+    UInt16 charData[MAX_BUFF];
 };
 
 // internal engine data
-#define CAPS_MASK                               0x10000
 #define TONE_MASK                               0x20000
 #define TONEW_MASK                              0x40000
 
@@ -50,18 +50,13 @@ struct vKeyHookState {
 #define MARK5_MASK                              0x800000
 
 // for checking has mark or not
-#define MARK_MASK                               0xF80000
+#define MARK_MASK                               0xf80000
 
-// mark and get first 16 bytes character
-#define CHAR_MASK                               0xFFFF
+// mark and get first 16 bits character
+#define CHAR_MASK                               0xffff
 
 // Check whether the data is create by standalone key or not (W)
 #define STANDALONE_MASK                         0x1000000
-
-// Chec whether the data is keyboard code or character code
-#define CHAR_CODE_MASK                          0x2000000
-
-#define PURE_CHARACTER_MASK                     0x80000000
 
 
 #endif /* datatypes_h */

@@ -16,16 +16,14 @@
 
 using namespace std;
 
-extern map<Uint16, vector<vector<Uint16>>> _vowel;
-extern map<Uint16, vector<vector<Uint32>>> _vowelCombine;
-extern map<Uint16, vector<vector<Uint16>>> _vowelForMark;
-extern vector<vector<Uint16>> _consonantD;
-extern vector<Uint16> _standaloneWbad;
-extern vector<vector<Uint16>> _doubleWAllowed;
-extern map<Uint32, vector<Uint16>> _codeTable;
-extern map<Uint32, Uint32> _characterMap;
-
-Uint16 keyCodeToCharacter(const Uint32&);
+extern vector<char> _whiteSpaces;
+extern vector<char> _vowels;
+extern map<char, vector<vector<char>>> _rimes;
+extern map<char, vector<vector<UInt32>>> _vowelCombine;
+extern map<char, vector<vector<char>>> _vowelForMark;
+extern vector<vector<char>> _consonantD;
+extern vector<char> _standaloneWbad;
+extern map<UInt32, vector<UInt16>> _codeTable;
 
 
 #endif /* vietnamese_hpp */

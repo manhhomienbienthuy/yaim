@@ -31,10 +31,6 @@ extern "C" {
         {kVK_F12, NX_KEYTYPE_SOUND_UP},
     };
     vector<CGKeyCode> ShortcutKeys = {kVK_Shift, kVK_RightShift, kVK_Control, kVK_RightControl};
-    vector<CGKeyCode> AlphaKeys = {kVK_ANSI_A, kVK_ANSI_B, kVK_ANSI_C, kVK_ANSI_D, kVK_ANSI_E,
-        kVK_ANSI_F, kVK_ANSI_G, kVK_ANSI_H, kVK_ANSI_I, kVK_ANSI_J, kVK_ANSI_K, kVK_ANSI_L,
-        kVK_ANSI_M, kVK_ANSI_N, kVK_ANSI_O, kVK_ANSI_P, kVK_ANSI_Q, kVK_ANSI_R, kVK_ANSI_S,
-        kVK_ANSI_T, kVK_ANSI_U, kVK_ANSI_V, kVK_ANSI_W, kVK_ANSI_X, kVK_ANSI_Y, kVK_ANSI_Z};
 
     void init() {
         myEventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
@@ -42,12 +38,11 @@ extern "C" {
     }
 
     void restartEngine() {
-        // send event signal to Engine
-        vKeyHandleEvent(0, false, true);
+        vKeyInit();
     }
 
     void sendEmptyCharacter(CGEventTapProxy _proxy) {
-        UniChar _newChar = 0x202F; // empty char
+        UniChar _newChar = 0x202f; // empty char
         CGEventRef _newEventDown = CGEventCreateKeyboardEvent(myEventSource, 0, true);
         CGEventRef _newEventUp = CGEventCreateKeyboardEvent(myEventSource, 0, false);
         CGEventKeyboardSetUnicodeString(_newEventDown, 1, &_newChar);
@@ -71,16 +66,9 @@ extern "C" {
 
     void sendCharData(CGEventTapProxy _proxy) {
         if (pData->newCharCount > 0) {
-            Uint16 _newCharString[MAX_BUFF];
+            UInt16 _newCharString[MAX_BUFF];
             for (char _i = pData->newCharCount - 1; _i >= 0; _i--) {
-                Uint32 _tempChar = pData->charData[_i];
-                if (_tempChar & PURE_CHARACTER_MASK) {
-                    _newCharString[pData->newCharCount - 1 - _i] = _tempChar;
-                } else if (!(_tempChar & CHAR_CODE_MASK)) {
-                    _newCharString[pData->newCharCount - 1 - _i] = keyCodeToCharacter(_tempChar);
-                } else {
-                    _newCharString[pData->newCharCount - 1 - _i] = _tempChar;
-                }
+                _newCharString[pData->newCharCount - 1 - _i] = pData->charData[_i];
             }
 
             CGEventRef _newEventDown = CGEventCreateKeyboardEvent(myEventSource, 0, true);
@@ -165,17 +153,23 @@ extern "C" {
             return event;
         }
 
-        // send event signal to Engine
-        bool _isModifier = (_flag & kCGEventFlagMaskCommand) ||
+        if ((_flag & kCGEventFlagMaskCommand) ||
             (_flag & kCGEventFlagMaskControl) ||
-            (_flag & kCGEventFlagMaskAlternate) ||
-            (_flag & kCGEventFlagMaskSecondaryFn) ||
             (_flag & kCGEventFlagMaskNumericPad) ||
-            (_flag & kCGEventFlagMaskHelp);
-        bool _isCaps = (_flag & kCGEventFlagMaskShift) ||
-            (_flag & kCGEventFlagMaskAlphaShift &&
-             std::find(AlphaKeys.begin(), AlphaKeys.end(), _keycode) != AlphaKeys.end());
-        vKeyHandleEvent(_keycode, _isCaps, _isModifier);
+            (_flag & kCGEventFlagMaskHelp)) {
+            restartEngine();
+            return event;
+        }
+
+        UInt16 _charCode;
+        UniCharCount _tmp = 0;
+        CGEventKeyboardGetUnicodeString(event, 1, &_tmp, &_charCode);
+        if (!_tmp) {
+            restartEngine();
+            return event;
+        }
+
+        vKeyHandleEvent(_charCode);
         if (pData->code == vDoNothing) {
             return event;
         } else {
