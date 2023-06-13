@@ -146,54 +146,32 @@ bool checkCorrectVowel(vector<char>& charset, const char& markKey) {
 }
 
 UInt16 getCharacterCode(const UInt32& data) {
-    UInt32 charCode = data & CHAR_MASK;
-    char capsElem = (charCode >= 'A' && charCode <= 'Z') ? 0 : 1;
-    charCode = toupper(charCode);
-
-    if (data & MARK_MASK) { // has mark
-        char markElem = -2;
-        switch (data & MARK_MASK) {
-            case MARK1_MASK:
-                markElem = 0;
-                break;
-            case MARK2_MASK:
-                markElem = 2;
-                break;
-            case MARK3_MASK:
-                markElem = 4;
-                break;
-            case MARK4_MASK:
-                markElem = 6;
-                break;
-            case MARK5_MASK:
-                markElem = 8;
-                break;
-        }
-        markElem += capsElem;
-
-        if ((charCode == 'A' ||
-             charCode == 'E' ||
-             charCode == 'O' ||
-             charCode == 'U') &&
-            !(data & (TONE_MASK | TONEW_MASK))) {
-                markElem += 4;
-        }
-
-        if (data & TONE_MASK) {
-            charCode |= TONE_MASK;
-        } else if (data & TONEW_MASK) {
-            charCode |= TONEW_MASK;
-        }
-
-        if (_codeTable.find(charCode) != _codeTable.end()) {
-            return _codeTable[charCode][markElem];
-        }
-    } else if ((data & (TONE_MASK | TONEW_MASK)) &&
-               (_codeTable.find(charCode) != _codeTable.end())) {
-        return _codeTable[charCode][capsElem + (data & TONE_MASK ? 0 : 2)];
+    if (!(data & (MARK_MASK | TONE_MASK | TONEW_MASK))) {
+        return data;
     }
 
-    return data;
+    UInt32 key = data & (toupper((char)data) | TONE_MASK | TONEW_MASK);
+    char markIndex = 1;
+
+    switch (data & MARK_MASK) {
+        case MARK1_MASK:
+            markIndex = 3;
+            break;
+        case MARK2_MASK:
+            markIndex = 5;
+            break;
+        case MARK3_MASK:
+            markIndex = 7;
+            break;
+        case MARK4_MASK:
+            markIndex = 9;
+            break;
+        case MARK5_MASK:
+            markIndex = 11;
+            break;
+    }
+
+    return _codeTable[key][markIndex - ((char)data >= 'A' && (char)data <= 'Z')];
 }
 
 void findAndCalculateVowel(const bool& isCheckSpelling=false) {
@@ -332,27 +310,23 @@ void insertMark(const UInt32& markMask, const bool& canModifyFlag=true) {
 
 void processMark(const char& charCode) {
     for (char i = 0; i < _vowelForMark.size(); i++) {
-        vector<vector<char>>& charset = _vowelForMark[i];
-
-        for (char j = 0; j < charset.size(); j++) {
-            if (_index < charset[j].size()) {
-                continue;
-            }
-            if (checkCorrectVowel(charset[j], toupper(charCode))) {
-                switch (toupper(charCode)) {
-                    case 'S':
-                        return insertMark(MARK1_MASK);
-                    case 'F':
-                        return insertMark(MARK2_MASK);
-                    case 'R':
-                        return insertMark(MARK3_MASK);
-                    case 'X':
-                        return insertMark(MARK4_MASK);
-                    case 'J':
-                        return insertMark(MARK5_MASK);
-                    default:
-                        return;
-                }
+        if (_index < _vowelForMark[i].size()) {
+            continue;
+        }
+        if (checkCorrectVowel(_vowelForMark[i], toupper(charCode))) {
+            switch (toupper(charCode)) {
+                case 'S':
+                    return insertMark(MARK1_MASK);
+                case 'F':
+                    return insertMark(MARK2_MASK);
+                case 'R':
+                    return insertMark(MARK3_MASK);
+                case 'X':
+                    return insertMark(MARK4_MASK);
+                case 'J':
+                    return insertMark(MARK5_MASK);
+                default:
+                    return;
             }
         }
     }

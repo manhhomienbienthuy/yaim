@@ -20,7 +20,7 @@ extern vector<char> _whiteSpaces;
 extern vector<char> _vowels;
 extern map<char, vector<vector<char>>> _rimes;
 extern map<char, vector<vector<UInt32>>> _vowelCombine;
-extern map<char, vector<vector<char>>> _vowelForMark;
+extern vector<vector<char>> _vowelForMark;
 extern vector<vector<char>> _consonantD;
 extern vector<char> _standaloneWbad;
 extern map<UInt32, vector<UInt16>> _codeTable;
