@@ -310,7 +310,7 @@ vector<vector<char>> _vowelForMark = {
     {'Y'}
 };
 
-vector<char> _standaloneWbad = {'W', 'E', 'Y', 'F', 'J', 'K', 'Z'};
+vector<char> _standaloneWbad = {'Q', 'W', 'E', 'Y', 'I', 'F', 'J', 'K', 'Z'};
 
 map<UInt32, vector<UInt16>> _codeTable = {
     // 'A',           {A, a, Á, á, À, à, Ả, ả, Ã, ã, Ạ, ạ

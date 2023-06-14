@@ -174,7 +174,7 @@ UInt16 getCharacterCode(const UInt32& data) {
     return _codeTable[key][markIndex - ((char)data >= 'A' && (char)data <= 'Z')];
 }
 
-void findAndCalculateVowel(const bool& isCheckSpelling=false) {
+void findAndCalculateVowel() {
     vowelCount = 0;
     VSI = VEI = 0;
     for (char i = _index - 1; i >= 0; i--) {
@@ -183,10 +183,8 @@ void findAndCalculateVowel(const bool& isCheckSpelling=false) {
                 break;
             }
         } else { // is vowel
-            if (CHR(i) == 'U' && i && CHR(i - 1) == 'Q') {
-                break;
-            }
-            if (!isCheckSpelling && CHR(i) == 'I' && i && CHR(i - 1) == 'G' && vowelCount > 0) {
+            if ((CHR(i) == 'U' && i && CHR(i - 1) == 'Q') ||
+                (CHR(i) == 'I' && i && CHR(i - 1) == 'G' && vowelCount && !(TypingWord[i] & MARK_MASK))) {
                 break;
             }
             if (vowelCount == 0) {
@@ -199,7 +197,7 @@ void findAndCalculateVowel(const bool& isCheckSpelling=false) {
 }
 
 void removeMark(const char& charCode) {
-    findAndCalculateVowel(true);
+    findAndCalculateVowel();
     if (_index > 0) {
         for (char i = VSI; i <= VEI; i++) {
             if (TypingWord[i] & MARK_MASK) {
@@ -545,7 +543,7 @@ void checkSpelling(const int& deltaBackSpace) {
         return;
     }
 
-    findAndCalculateVowel(true);
+    findAndCalculateVowel();
     if (vowelCount == 0) {
         return;
     }
