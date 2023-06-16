@@ -128,6 +128,11 @@ NSStatusItem *statusItem;
                                                                name:NSWorkspaceActiveSpaceDidChangeNotification
                                                              object:nil];
 
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                                                           selector:@selector(receiveActiveSpaceChanged:)
+                                                               name:NSWorkspaceDidActivateApplicationNotification
+                                                             object:nil];
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(receiveInputChanged:)
                                                  name: NSTextInputContextKeyboardSelectionDidChangeNotification
