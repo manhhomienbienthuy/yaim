@@ -31,32 +31,17 @@ struct vKeyHookState {
     UInt16 charData[MAX_BUFF];
 };
 
-// internal engine data
-#define TONE_MASK                               0x20000
-#define TONEW_MASK                              0x40000
-
-/*
- * MARK MASK
- * 1: Dấu Sắc - á
- * 2: Dấu Huyền - à
- * 3: Dấu Hỏi - ả
- * 4: Dấu Ngã - ã
- * 5: dấu Nặng - ạ
- */
-#define MARK1_MASK                              0x080000
-#define MARK2_MASK                              0x100000
-#define MARK3_MASK                              0x200000
-#define MARK4_MASK                              0x400000
-#define MARK5_MASK                              0x800000
-
-// for checking has mark or not
-#define MARK_MASK                               0xf80000
-
-// mark and get first 16 bits character
-#define CHAR_MASK                               0xffff
-
-// Check whether the data is create by standalone key or not (W)
-#define STANDALONE_MASK                         0x1000000
+enum {
+    TONE_MASK       = 1 << 17, // ^ tone
+    TONEW_MASK      = 1 << 18, // tone ă, ư, ơ
+    MARK1_MASK      = 1 << 19, // sắc
+    MARK2_MASK      = 1 << 20, // huyền
+    MARK3_MASK      = 1 << 21, // hỏi
+    MARK4_MASK      = 1 << 22, // ngã
+    MARK5_MASK      = 1 << 23, // nặng
+    MARK_MASK       = 0x1f << 19,
+    STANDALONE_MASK = 1 << 24, // standalone key (w)
+};
 
 
 #endif /* datatypes_h */

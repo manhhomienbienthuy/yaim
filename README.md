@@ -13,3 +13,5 @@ yet another input method
 - Code được chỉnh sửa theo hướng đơn giản hơn, phù hợp với logic của app.
 - Thêm tính năng giúp các phím F1~F12 hoạt động như phím media của MacBook
   khi kết hợp với `Fn`.
+
+Copyright © 2023 [manhhomienbienthuy](https://manhhomienbienthuy.github.io/)

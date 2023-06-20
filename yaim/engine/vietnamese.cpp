@@ -10,7 +10,6 @@
 
 using namespace std;
 
-vector<char> _whiteSpaces = {' ', '\t', '\n'};
 vector<char> _vowels = {'A', 'E', 'U', 'Y', 'I', 'O'};
 
 map<char, vector<vector<char>>> _rimes = {
@@ -234,7 +233,7 @@ vector<vector<char>> _consonantD = {
     {'D'}
 };
 
-vector<vector<char>> _vowelForMark = {
+vector<vector<char>> _rimesForMark = {
     // 'A'
     {'A', 'N', 'G'},
     {'A', 'N'},

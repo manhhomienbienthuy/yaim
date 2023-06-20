@@ -15,25 +15,20 @@
 #define ORD getCharacterCode
 #define CHR(index) toupper((UInt16)TypingWord[index])
 
-// data to sendback to main program
 vKeyHookState HookState;
 
-// private data
 /**
  * data structure of each element in TypingWord (Uint64)
  * first 16 bits is character code
  * bit 17: has tone ^ or not
  * bit 18: has tone w or not
- * bit 19 - > 23: has mark or not (Sắc, huyền, hỏi, ngã, nặng)
- * bit 24: is standalone key? (w, [, ])
+ * bit 19-23: has mark or not (sắc, huyền, hỏi, ngã, nặng)
+ * bit 24: is standalone key? (w)
  */
 UInt32 TypingWord[MAX_BUFF];
 char _index = 0;
 vector<vector<UInt32>> _typingStates;
 
-/**
- * use for restore key press esc
- */
 UInt16 TypingKeys[MAX_BUFF];
 char _stateIndex = 0;
 vector<vector<UInt16>> _keyStates;
@@ -60,7 +55,6 @@ bool isKeyIn(const char& charCode, vector<char>& charset) {
 }
 
 void saveTypingHistory() {
-    // save word history
     if (_index > 0) {
         char i;
         vector<UInt32> _typingStatesData;
@@ -123,22 +117,19 @@ bool checkCorrectVowel(vector<char>& charset, const char& markKey) {
     }
 
     char s = charset.size();
-    for (char j = s - 1; j >= 0; j--) {
+    for (char j = 0; j < s; j++) {
         if (charset[j] != CHR(_index - s + j)) {
             return false;
         }
     }
-
-    // limit mark for end consonant: "C", "T"
-    if (s > 1 && (markKey == 'F' || markKey == 'X' || markKey == 'R')) {
-        if (charset[1] == 'C' || charset[1] == 'T') {
-            return false;
-        } else if (s > 2 && (charset[2] == 'T')) {
-            return false;
-        }
+    if (_index > s && CHR(_index - s - 1) == CHR(_index - s)) {
+        return false;
     }
 
-    if (_index > s && CHR(_index - s - 1) == CHR(_index - s)) {
+    // limit mark for end consonant: "C", "T", "P", "CH"
+    if ((markKey == 'F' || markKey == 'X' || markKey == 'R') &&
+        (charset.back() == 'T' || charset.back() == 'C' || charset.back() == 'P' ||
+         (charset.back() == 'H' && charset[1] == 'C'))) {
         return false;
     }
 
@@ -263,7 +254,6 @@ void insertMark(const UInt32& markMask, const bool& canModifyFlag=true) {
     findAndCalculateVowel();
     VWSM = 0;
 
-    // detect mark position
     if (vowelCount == 1) {
         VWSM = VEI;
         hBPC = _index - VEI;
@@ -274,7 +264,6 @@ void insertMark(const UInt32& markMask, const bool& canModifyFlag=true) {
         }
     }
 
-    // send data
     if (TypingWord[VWSM] & markMask) {
         // if duplicate same mark -> restore
         TypingWord[VWSM] &= ~MARK_MASK;
@@ -307,11 +296,11 @@ void insertMark(const UInt32& markMask, const bool& canModifyFlag=true) {
 }
 
 void processMark(const char& charCode) {
-    for (char i = 0; i < _vowelForMark.size(); i++) {
-        if (_index < _vowelForMark[i].size()) {
+    for (char i = 0; i < _rimesForMark.size(); i++) {
+        if (_index < _rimesForMark[i].size()) {
             continue;
         }
-        if (checkCorrectVowel(_vowelForMark[i], toupper(charCode))) {
+        if (checkCorrectVowel(_rimesForMark[i], toupper(charCode))) {
             switch (toupper(charCode)) {
                 case 'S':
                     return insertMark(MARK1_MASK);
@@ -393,7 +382,7 @@ void insertAOE(const char& charCode) {
 
             }
             break;
-        } else { // preresent old char
+        } else {
             hData[_index - 1 - i] = ORD(TypingWord[i]);
         }
     }
@@ -523,7 +512,6 @@ void processTone(const char& charCode) {
 
 void restoreTyping() {
     if (_index < _stateIndex) {
-        // NOTE: it should be another status, but this one is good enough
         hCode = vWillProcess;
         hBPC = _index + _spaceCount;
         hNCC = _stateIndex;
@@ -582,7 +570,6 @@ void checkSpelling(const int& deltaBackSpace) {
         }
     }
 
-    // re-arrange data to sendback
     if (needCorrect) {
         if (hCode ==vDoNothing) {
             hCode = vWillProcess;
@@ -599,10 +586,7 @@ void checkSpelling(const int& deltaBackSpace) {
 void vKeyHandleEvent(const UInt16& charCode) {
     if (charCode == 0x1b) { // ESC
         restoreTyping();
-    } else if (charCode < 127 && isKeyIn(charCode, _whiteSpaces)) {
-        hCode = vDoNothing;
-        _spaceCount++;
-    } else if (charCode == 0x08) { // Delete
+    } else if (charCode == 0x08) { // Backspace
         hCode = vDoNothing;
         if (_spaceCount > 0) {
             _spaceCount--;
@@ -615,13 +599,16 @@ void vKeyHandleEvent(const UInt16& charCode) {
                 checkSpelling(1);
             }
         }
-    } else { // start and check key
+    } else if (toupper(charCode) < 'A' || toupper(charCode) > 'Z') {
+        hCode = vDoNothing;
+        _spaceCount++;
+    } else {
         if (_spaceCount > 0) {
             saveTypingHistory();
             startNewSession();
         }
 
-        addToTypingKeys(charCode); // save state
+        addToTypingKeys(charCode);
         hCode = vDoNothing;
 
         switch (toupper(charCode)) {
