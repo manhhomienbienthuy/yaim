@@ -39,8 +39,9 @@ enum {
     MARK3_MASK      = 1 << 21, // hỏi
     MARK4_MASK      = 1 << 22, // ngã
     MARK5_MASK      = 1 << 23, // nặng
-    MARK_MASK       = 0x1f << 19,
     STANDALONE_MASK = 1 << 24, // standalone key (w)
+    MARK_MASK       = 0x1f << 19,
+    PROCESS_MASK    = 0xff << 17,
 };
 
 

@@ -137,7 +137,7 @@ bool checkCorrectVowel(vector<char>& charset, const char& markKey) {
 }
 
 UInt16 getCharacterCode(const UInt32& data) {
-    if (!(data & (MARK_MASK | TONE_MASK | TONEW_MASK))) {
+    if (!(data & PROCESS_MASK)) {
         return data;
     }
 
@@ -442,7 +442,6 @@ void insertW(const char& charCode) {
     }
 
     hCode = vWillProcess;
-
     for (i = _index - 1; i >= VSI; i--) {
         switch (CHR(i)) {
             case 'A':
@@ -511,19 +510,22 @@ void processTone(const char& charCode) {
 }
 
 void restoreTyping() {
-    if (_index < _stateIndex) {
-        hCode = vWillProcess;
-        hBPC = _index + _spaceCount;
-        hNCC = _stateIndex;
-        for (char i = 0; i < _stateIndex; i++) {
-            TypingWord[i] = TypingKeys[i];
-            hData[_stateIndex - 1 - i] = TypingWord[i];
+    for (char i = 0; i < _index; i++) {
+        if (_index < _stateIndex || TypingWord[i] & PROCESS_MASK) {
+            hCode = vWillProcess;
+            hBPC = _index + _spaceCount;
+            hNCC = _stateIndex;
+            for (char j = 0; j < _stateIndex; j++) {
+                TypingWord[j] = TypingKeys[j];
+                hData[_stateIndex - 1 - j] = TypingWord[j];
+            }
+            _index = _stateIndex;
+            _spaceCount = 0;
+            return;
         }
-        _index = _stateIndex;
-        _spaceCount = 0;
-    } else {
-        hCode = vDoNothing;
     }
+
+    hCode = vDoNothing;
 }
 
 void checkSpelling(const int& deltaBackSpace) {
