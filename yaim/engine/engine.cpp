@@ -50,10 +50,6 @@ void* vKeyInit() {
     return &HookState;
 }
 
-bool isKeyIn(const char& charCode, vector<char>& charset) {
-    return std::find(charset.begin(), charset.end(), charCode) != charset.end();
-}
-
 void saveTypingHistory() {
     if (_index > 0) {
         char i;
@@ -169,7 +165,12 @@ void findAndCalculateVowel() {
     vowelCount = 0;
     VSI = VEI = 0;
     for (char i = _index - 1; i >= 0; i--) {
-        if (!isKeyIn(CHR(i), _vowels)) {
+        if (CHR(i) != 'A' &&
+            CHR(i) != 'E' &&
+            CHR(i) != 'U' &&
+            CHR(i) != 'Y' &&
+            CHR(i) != 'I' &&
+            CHR(i) != 'O') {
             if (vowelCount > 0) {
                 break;
             }
@@ -198,7 +199,11 @@ void removeMark(const char& charCode) {
                     hData[_index - 1 - j] = ORD(TypingWord[j]);
                 }
                 hNCC = hBPC = _index - VSI;
-                _stateIndex -= 2;
+                _stateIndex -= 1 + (TypingKeys[_stateIndex - 2] == 's' ||
+                                    TypingKeys[_stateIndex - 2] == 'f' ||
+                                    TypingKeys[_stateIndex - 2] == 'r' ||
+                                    TypingKeys[_stateIndex - 2] == 'x' ||
+                                    TypingKeys[_stateIndex - 2] == 'j');
                 return;
             }
         }
@@ -229,7 +234,14 @@ void calcMarkPosition() {
     VWSM = VSI;
 
     // rule 2
-    if (vowelCount == 3 || (VEI + 1 < _index && !isKeyIn(CHR(VEI + 1), _vowels) && canHasEndConsonant())) {
+    if (vowelCount == 3 || (VEI + 1 < _index &&
+                            CHR(VEI + 1) != 'A' &&
+                            CHR(VEI + 1) != 'E' &&
+                            CHR(VEI + 1) != 'U' &&
+                            CHR(VEI + 1) != 'Y' &&
+                            CHR(VEI + 1) != 'I' &&
+                            CHR(VEI + 1) != 'O' &&
+                            canHasEndConsonant())) {
         VWSM = VSI + 1;
     }
 
@@ -278,7 +290,13 @@ void insertMark(const UInt32& markMask, const bool& canModifyFlag=true) {
         // remove other mark
         if (TypingWord[VWSM] & MARK_MASK) {
             TypingWord[VWSM] &= ~MARK_MASK;
-            TypingKeys[_stateIndex - 1] = TypingKeys[--_stateIndex];
+            if (TypingKeys[_stateIndex - 2] == 's' ||
+                TypingKeys[_stateIndex - 2] == 'f' ||
+                TypingKeys[_stateIndex - 2] == 'r' ||
+                TypingKeys[_stateIndex - 2] == 'x' ||
+                TypingKeys[_stateIndex - 2] == 'j') {
+                TypingKeys[_stateIndex - 1] = TypingKeys[--_stateIndex];
+            }
         }
 
         // add mark
@@ -479,7 +497,15 @@ void reserveLastStandaloneChar(const char& charCode) {
 }
 
 void checkForStandaloneW(const char& charCode) {
-    if (_index && std::find(_standaloneWbad.begin(), _standaloneWbad.end(), CHR(_index - 1)) != _standaloneWbad.end()) {
+    if (_index && (CHR(_index - 1) == 'Q' ||
+                   CHR(_index - 1) == 'W' ||
+                   CHR(_index - 1) == 'E' ||
+                   CHR(_index - 1) == 'Y' ||
+                   CHR(_index - 1) == 'I' ||
+                   CHR(_index - 1) == 'F' ||
+                   CHR(_index - 1) == 'J' ||
+                   CHR(_index - 1) == 'K' ||
+                   CHR(_index - 1) == 'Z')) {
         return addToTypingWord(charCode);
     }
     reserveLastStandaloneChar(charCode == 'W' ? 'U' : 'u');

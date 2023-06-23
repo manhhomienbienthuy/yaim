@@ -10,8 +10,6 @@
 
 using namespace std;
 
-vector<char> _vowels = {'A', 'E', 'U', 'Y', 'I', 'O'};
-
 map<char, vector<vector<char>>> _rimes = {
     {
         'A', {
@@ -308,8 +306,6 @@ vector<vector<char>> _rimesForMark = {
     // 'Y'
     {'Y'}
 };
-
-vector<char> _standaloneWbad = {'Q', 'W', 'E', 'Y', 'I', 'F', 'J', 'K', 'Z'};
 
 map<UInt32, vector<UInt16>> _codeTable = {
     // 'A',           {A, a, Á, á, À, à, Ả, ả, Ã, ã, Ạ, ạ
