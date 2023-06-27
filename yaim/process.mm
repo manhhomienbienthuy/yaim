@@ -113,6 +113,7 @@ extern "C" {
             if ((std::find(ShortcutKeys.begin(), ShortcutKeys.end(), _keycode) != ShortcutKeys.end()) &&
                 checkHotKey(_flag)) {
                 [appDelegate onInputMethodChanged];
+                NSBeep();
                 return nil;
             }
             if (_keycode == kVK_Function) {
