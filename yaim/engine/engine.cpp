@@ -106,7 +106,7 @@ void restoreLastTypingState() {
     }
 }
 
-bool checkCorrectVowel(vector<char>& charset, const char& markKey) {
+bool isGoodSpelling(vector<char>& charset, const char& markKey) {
     // ignore "qu" case
     if (_index >= 2 && CHR(_index - 1) == 'U' && CHR(_index - 2) == 'Q') {
         return false;
@@ -176,7 +176,8 @@ void findAndCalculateVowel() {
             }
         } else { // is vowel
             if ((CHR(i) == 'U' && i && CHR(i - 1) == 'Q') ||
-                (CHR(i) == 'I' && i && CHR(i - 1) == 'G' && vowelCount && !(TypingWord[i] & MARK_MASK))) {
+                (CHR(i) == 'I' && i && CHR(i - 1) == 'G' &&
+                 vowelCount && !(TypingWord[i] & MARK_MASK))) {
                 break;
             }
             if (vowelCount == 0) {
@@ -212,50 +213,6 @@ void removeMark(const char& charCode) {
     addToTypingWord(charCode);
 }
 
-bool canHasEndConsonant() {
-    vector<vector<UInt32>>& vo = _vowelCombine[CHR(VSI)];
-    for (char i = 0; i < vo.size(); i++) {
-        char k = VSI;
-        char j;
-        for (j = 1; j < vo[i].size(); j++) {
-            if (k > VEI || ((CHR(k) | (TypingWord[k] & (TONE_MASK | TONEW_MASK))) != vo[i][j])) {
-                break;
-            }
-            k++;
-        }
-        if (j >= vo[i].size()) {
-            return vo[i][0] == 1;
-        }
-    }
-    return false;
-}
-
-void calcMarkPosition() {
-    VWSM = VSI;
-
-    // rule 2
-    if (vowelCount == 3 || (VEI + 1 < _index &&
-                            CHR(VEI + 1) != 'A' &&
-                            CHR(VEI + 1) != 'E' &&
-                            CHR(VEI + 1) != 'U' &&
-                            CHR(VEI + 1) != 'Y' &&
-                            CHR(VEI + 1) != 'I' &&
-                            CHR(VEI + 1) != 'O' &&
-                            canHasEndConsonant())) {
-        VWSM = VSI + 1;
-    }
-
-    // rule 3
-    for (char i = VSI; i <= VEI; i++) {
-        if ((CHR(i) == 'E' && TypingWord[i] & TONE_MASK) || (CHR(i) == 'O' && TypingWord[i] & TONEW_MASK)) {
-            VWSM = i;
-            break;
-        }
-    }
-
-    hBPC = _index - VWSM;
-}
-
 void insertMark(const UInt32& markMask, const bool& canModifyFlag=true) {
     vowelCount = 0;
 
@@ -264,17 +221,20 @@ void insertMark(const UInt32& markMask, const bool& canModifyFlag=true) {
     }
 
     findAndCalculateVowel();
-    VWSM = 0;
-
-    if (vowelCount == 1) {
+    if (vowelCount == 1 ||
+        TypingWord[VEI] & (TONE_MASK | TONEW_MASK) ||
+        (VEI + 1 < _index &&
+         CHR(VEI + 1) != 'A' &&
+         CHR(VEI + 1) != 'E' &&
+         CHR(VEI + 1) != 'U' &&
+         CHR(VEI + 1) != 'Y' &&
+         CHR(VEI + 1) != 'I' &&
+         CHR(VEI + 1) != 'O')) {
         VWSM = VEI;
-        hBPC = _index - VEI;
     } else {
-        calcMarkPosition();
-        if (TypingWord[VEI] & (TONE_MASK | TONEW_MASK)) {
-            VWSM = VEI;
-        }
+        VWSM = VEI - 1;
     }
+    hBPC = _index - VWSM;
 
     if (TypingWord[VWSM] & markMask) {
         // if duplicate same mark -> restore
@@ -318,7 +278,7 @@ void processMark(const char& charCode) {
         if (_index < _rimesForMark[i].size()) {
             continue;
         }
-        if (checkCorrectVowel(_rimesForMark[i], toupper(charCode))) {
+        if (isGoodSpelling(_rimesForMark[i], toupper(charCode))) {
             switch (toupper(charCode)) {
                 case 'S':
                     return insertMark(MARK1_MASK);
@@ -344,7 +304,7 @@ void insertD(const char& charCode) {
         if (_index < _consonantD[i].size()) {
             continue;
         }
-        if (checkCorrectVowel(_consonantD[i], toupper(charCode))) {
+        if (isGoodSpelling(_consonantD[i], toupper(charCode))) {
             hCode = vWillProcess;
             hBPC = 0;
             for (char j = _index - 1; j >= 0; j--) {
@@ -512,13 +472,13 @@ void checkForStandaloneW(const char& charCode) {
 }
 
 void processTone(const char& charCode) {
-    vector<vector<char>>& charset = _rimes[toupper(charCode)];
+    vector<vector<char>>& charset = _rimesForTone[toupper(charCode)];
 
     for (char i = 0; i < charset.size(); i++) {
         if (_index < charset[i].size()) {
             continue;
         }
-        if (checkCorrectVowel(charset[i], toupper(charCode))) {
+        if (isGoodSpelling(charset[i], toupper(charCode))) {
             if (toupper(charCode) == 'W') {
                 insertW(charCode);
             } else {
@@ -554,7 +514,7 @@ void restoreTyping() {
     hCode = vDoNothing;
 }
 
-void checkSpelling(const int& deltaBackSpace) {
+void regulateSpelling(const int& deltaBackSpace) {
     if (_index <= 1 || _index >= MAX_BUFF) {
         return;
     }
@@ -624,7 +584,7 @@ void vKeyHandleEvent(const UInt16& charCode) {
                 restoreLastTypingState();
             } else {
                 _stateIndex--;
-                checkSpelling(1);
+                regulateSpelling(1);
             }
         }
     } else if (toupper(charCode) < 'A' || toupper(charCode) > 'Z') {
@@ -664,8 +624,9 @@ void vKeyHandleEvent(const UInt16& charCode) {
                 break;
         }
 
-        if (toupper(charCode) >= 'A' && toupper(charCode) <= 'Z' && toupper(charCode) != 'D') {
-            checkSpelling(0 - (hCode == vDoNothing));
+        if (toupper(charCode) >= 'A' && toupper(charCode) <= 'Z' &&
+            toupper(charCode) != 'D') {
+            regulateSpelling(0 - (hCode == vDoNothing));
         }
 
         if (hCode == vRestore) {

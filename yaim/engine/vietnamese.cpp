@@ -10,7 +10,7 @@
 
 using namespace std;
 
-map<char, vector<vector<char>>> _rimes = {
+map<char, vector<vector<char>>> _rimesForTone = {
     {
         'A', {
             {'A', 'N', 'G'},
@@ -54,18 +54,14 @@ map<char, vector<vector<char>>> _rimes = {
     },
     {
         'W', {
-            {'O', 'N'},
             {'U', 'O', 'N', 'G'},
             {'U', 'O', 'N'},
             {'U', 'O', 'I'},
             {'U', 'O', 'C'},
-            {'O', 'I'},
-            {'O', 'P'},
-            {'O', 'M'},
-            {'O', 'A'},
-            {'O', 'T'},
+            {'U', 'O', 'P'},
+            {'U', 'O'},
+            {'U', 'U'},
             {'U', 'N', 'G'},
-            {'A', 'N', 'G'},
             {'U', 'N'},
             {'U', 'M'},
             {'U', 'C'},
@@ -73,91 +69,20 @@ map<char, vector<vector<char>>> _rimes = {
             {'U', 'I'},
             {'U', 'T'},
             {'U'},
+            {'A', 'N', 'G'},
             {'A', 'P'},
             {'A', 'T'},
             {'A', 'M'},
             {'A', 'N'},
             {'A'},
             {'A', 'C'},
-            {'A', 'C', 'H'},
+            {'O', 'N'},
+            {'O', 'I'},
+            {'O', 'P'},
+            {'O', 'M'},
+            {'O', 'A'},
+            {'O', 'T'},
             {'O'},
-            {'U', 'U'}
-        }
-    }
-};
-
-map<char, vector<vector<UInt32>>> _vowelCombine = {
-    {
-        'A', {
-            // fist elem can has end consonant or not
-            {0, 'A', 'I'},
-            {0, 'A', 'O'},
-            {0, 'A', 'U'},
-            {0, 'A'|TONE_MASK, 'U'},
-            {0, 'A', 'Y'},
-            {0, 'A'|TONE_MASK, 'Y'},
-        }
-    },
-    {
-        'E', {
-            {0, 'E', 'O'},
-            {0, 'E'|TONE_MASK, 'U'},
-        }
-    },
-    {
-        'I', {
-            {1, 'I', 'E'|TONE_MASK, 'U'},
-            {0, 'I', 'A'},
-            {1, 'I', 'E'|TONE_MASK},
-            {0, 'I', 'U'},
-
-        }
-    },
-    {
-        'O', {
-            {0, 'O', 'A', 'I'},
-            {0, 'O', 'A', 'O'},
-            {0, 'O', 'A', 'Y'},
-            {0, 'O', 'E', 'O'},
-            {1, 'O', 'A'},
-            {1, 'O', 'A'|TONEW_MASK},
-            {1, 'O', 'E'},
-            {0, 'O', 'I'},
-            {0, 'O'|TONE_MASK, 'I'},
-            {0, 'O'|TONEW_MASK, 'I'},
-            {1, 'O', 'O'},
-            {1, 'O'|TONE_MASK, 'O'|TONE_MASK},
-        }
-    },
-    {
-        'U', {
-            {0, 'U', 'Y', 'U'},
-            {1, 'U', 'Y', 'E'|TONE_MASK},
-            {0, 'U', 'Y', 'A'},
-            {0, 'U'|TONEW_MASK, 'O'|TONEW_MASK, 'U'},
-            {0, 'U'|TONEW_MASK, 'O'|TONEW_MASK, 'I'},
-            {0, 'U', 'O'|TONE_MASK, 'I'},
-            {0, 'U', 'A'|TONE_MASK, 'Y'},
-            {1, 'U', 'A', 'O'},
-            {1, 'U', 'A'},
-            {1, 'U', 'A'|TONEW_MASK},
-            {1, 'U', 'A'|TONE_MASK},
-            {0, 'U'|TONEW_MASK, 'A'},
-            {1, 'U', 'E'|TONE_MASK},
-            {0, 'U', 'I'},
-            {0, 'U'|TONEW_MASK, 'I'},
-            {1, 'U', 'O'},
-            {1, 'U', 'O'|TONE_MASK},
-            {0, 'U', 'O'|TONEW_MASK},
-            {1, 'U'|TONEW_MASK, 'O'|TONEW_MASK},
-            {0, 'U'|TONEW_MASK, 'U'},
-            {1, 'U', 'Y'},
-        }
-    },
-    {
-        'Y', {
-            {0, 'Y', 'E'|TONE_MASK, 'U'},
-            {1, 'Y', 'E'|TONE_MASK},
         }
     }
 };
