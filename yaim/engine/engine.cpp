@@ -581,7 +581,10 @@ void vKeyHandleEvent(const UInt16& charCode) {
                 _stateIndex = 0;
                 restoreLastTypingState();
             } else {
-                _stateIndex--;
+                _stateIndex -= 1 +
+                    ((TypingWord[_index] & TONE_MASK) != 0) +
+                    (CHR(_index) == 'O' && (TypingWord[_index] & TONEW_MASK) != 0) +
+                    ((TypingWord[_index] & MARK_MASK) != 0);
                 regulateSpelling(1);
             }
         }
