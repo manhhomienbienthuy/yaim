@@ -214,8 +214,6 @@ void removeMark(const char& charCode) {
 }
 
 void insertMark(const UInt32& markMask, const bool& canModifyFlag=true) {
-    vowelCount = 0;
-
     if (canModifyFlag) {
         hCode = vWillProcess;
     }
@@ -591,7 +589,10 @@ void vKeyHandleEvent(const UInt16& charCode) {
         hCode = vDoNothing;
         _spaceCount++;
     } else {
-        if (_spaceCount > 0) {
+        if (_spaceCount > 0 ||
+            (charCode >= 'A' && charCode <= 'Z' &&
+             (char)TypingWord[_index - 1] >= 'a' &&
+             (char)TypingWord[_index - 1] <= 'z')) {
             saveTypingHistory();
             startNewSession();
         }
