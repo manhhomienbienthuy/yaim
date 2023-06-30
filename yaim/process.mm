@@ -66,15 +66,10 @@ extern "C" {
 
     void sendCharData(CGEventTapProxy _proxy) {
         if (pData->newCharCount > 0) {
-            UInt16 _newCharString[MAX_BUFF];
-            for (char _i = pData->newCharCount - 1; _i >= 0; _i--) {
-                _newCharString[pData->newCharCount - 1 - _i] = pData->charData[_i];
-            }
-
             CGEventRef _newEventDown = CGEventCreateKeyboardEvent(myEventSource, 0, true);
             CGEventRef _newEventUp = CGEventCreateKeyboardEvent(myEventSource, 0, false);
-            CGEventKeyboardSetUnicodeString(_newEventDown, pData->newCharCount, _newCharString);
-            CGEventKeyboardSetUnicodeString(_newEventUp, pData->newCharCount, _newCharString);
+            CGEventKeyboardSetUnicodeString(_newEventDown, pData->newCharCount, pData->charData);
+            CGEventKeyboardSetUnicodeString(_newEventUp, pData->newCharCount, pData->charData);
             CGEventTapPostEvent(_proxy, _newEventDown);
             CGEventTapPostEvent(_proxy, _newEventUp);
             CFRelease(_newEventDown);
@@ -83,10 +78,10 @@ extern "C" {
     }
 
     bool checkHotKey(CGEventFlags _flag) {
-        return (_flag & kCGEventFlagMaskControl) != 0 &&
-            (_flag & kCGEventFlagMaskShift) != 0 &&
-            (_flag & kCGEventFlagMaskAlternate) == 0 &&
-            (_flag & kCGEventFlagMaskCommand) == 0;
+        return (_flag & kCGEventFlagMaskControl) &&
+            (_flag & kCGEventFlagMaskShift) &&
+            !(_flag & kCGEventFlagMaskAlternate) &&
+            !(_flag & kCGEventFlagMaskCommand);
     }
 
     /**
@@ -117,7 +112,7 @@ extern "C" {
                 return nil;
             }
             if (_keycode == kVK_Function) {
-                _isFnPressed = (_flag & kCGEventFlagMaskSecondaryFn) != 0;
+                _isFnPressed = (_flag & kCGEventFlagMaskSecondaryFn);
             }
         }
 

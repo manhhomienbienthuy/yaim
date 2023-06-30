@@ -232,6 +232,35 @@ vector<vector<char>> _rimesForMark = {
     {'Y'}
 };
 
+vector<vector<char>> _beginConsonants = {
+    { 'N', 'G', 'H' },
+    { 'P', 'H' },
+    { 'T', 'H' },
+    { 'T', 'R' },
+    { 'G', 'I' },
+    { 'C', 'H' },
+    { 'N', 'H' },
+    { 'N', 'G'},
+    { 'K', 'H' },
+    { 'G', 'H' },
+    { 'Q', 'U' },
+    { 'G' },
+    { 'C' },
+    { 'K' },
+    { 'T' },
+    { 'R' },
+    { 'H' },
+    { 'B' },
+    { 'M' },
+    { 'V' },
+    { 'N' },
+    { 'L' },
+    { 'X' },
+    { 'P' },
+    { 'S' },
+    { 'D' },
+};
+
 map<UInt32, vector<UInt16>> _codeTable = {
     // 'A',           {A, a, Á, á, À, à, Ả, ả, Ã, ã, Ạ, ạ
     {'A',            {0x0000, 0x0000, 0x00c1, 0x00e1, 0x00c0, 0x00e0, 0x1ea2, 0x1ea3, 0x00c3, 0x00e3, 0x1ea0, 0x1ea1}},

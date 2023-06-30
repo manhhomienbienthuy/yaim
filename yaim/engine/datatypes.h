@@ -11,7 +11,7 @@
 
 #include <MacTypes.h>
 
-#define MAX_BUFF 32
+#define MAX_BUFF 16
 #define MAX_WORD 3
 
 //typedef unsigned short UInt16;

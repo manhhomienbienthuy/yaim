@@ -18,6 +18,7 @@ using namespace std;
 extern map<char, vector<vector<char>>> _rimesForTone;
 extern vector<vector<char>> _rimesForMark;
 extern vector<vector<char>> _consonantD;
+extern vector<vector<char>> _beginConsonants;
 extern map<UInt32, vector<UInt16>> _codeTable;
 
 
