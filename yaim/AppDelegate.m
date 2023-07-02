@@ -86,6 +86,7 @@ NSStatusItem *statusItem;
 
 - (void)updateIcon {
     statusItem.button.image = [NSImage imageNamed:(isVietnamese ? @"vi" : @"en")];
+    [statusItem.button.image setTemplate:YES];
 }
 
 
