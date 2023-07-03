@@ -109,7 +109,7 @@ void restoreLastTypingState() {
 bool isGoodBeginning(const char& size) {
     for (char i = 0; i < _beginConsonants.size(); i++) {
         char s = _beginConsonants[i].size();
-        if (s > size || s < size - 2) {
+        if (s != size) {
             continue;
         }
 
@@ -121,50 +121,26 @@ bool isGoodBeginning(const char& size) {
             }
         }
 
-        if (found) {
-            for (char j = s; j < size; j++) {
-                if (CHR(j) != 'A' &&
-                    CHR(j) != 'E' &&
-                    CHR(j) != 'U' &&
-                    CHR(j) != 'Y' &&
-                    CHR(j) != 'I' &&
-                    CHR(j) != 'O') {
-                    found = false;
-                    break;
-                }
-            }
-            if (!found) {
-                continue;
-            }
-
-            if (((vector<char>){'K'} == _beginConsonants[i] ||
-                 (vector<char>){'N', 'G', 'H'} == _beginConsonants[i]) &&
-                s < _index && CHR(s) != 'I' && CHR(s) !='E' && CHR(s) != 'Y') {
-                continue;
-            }
-
-            if ((vector<char>){'N', 'G'} == _beginConsonants[i] &&
-                s < _index && CHR(s) != 'A' && CHR(s) != 'U' && CHR(s) != 'O') {
-                continue;
-
-            }
-
-            return true;
+        if (!found) {
+            continue;
         }
+
+        if (((vector<char>){'K'} == _beginConsonants[i] ||
+             (vector<char>){'N', 'G', 'H'} == _beginConsonants[i]) &&
+            s < _index && CHR(s) != 'I' && CHR(s) !='E' && CHR(s) != 'Y') {
+            continue;
+        }
+
+        if ((vector<char>){'N', 'G'} == _beginConsonants[i] &&
+            s < _index && CHR(s) != 'A' && CHR(s) != 'U' && CHR(s) != 'O') {
+            continue;
+
+        }
+
+        return true;
     }
 
-    for (char j = 0; j < size; j++) {
-        if (CHR(j) != 'A' &&
-            CHR(j) != 'E' &&
-            CHR(j) != 'U' &&
-            CHR(j) != 'Y' &&
-            CHR(j) != 'I' &&
-            CHR(j) != 'O') {
-            return false;
-        }
-    }
-
-    return true;
+    return false;
 }
 
 bool isGoodSpelling(vector<char>& charset, const char& markKey) {
@@ -184,13 +160,14 @@ bool isGoodSpelling(vector<char>& charset, const char& markKey) {
     }
 
     // limit mark for end consonant: "C", "T", "P", "CH"
+    char backChar = charset.back();
     if ((markKey == 'F' || markKey == 'X' || markKey == 'R') &&
-        (charset.back() == 'T' || charset.back() == 'C' || charset.back() == 'P' ||
-         (charset.back() == 'H' && charset[1] == 'C'))) {
+        (backChar == 'T' || backChar == 'C' || backChar == 'P' ||
+         (backChar == 'H' && charset[s - 2] == 'C'))) {
         return false;
     }
 
-    if (charset[0] != 'D' && _index > s) {
+    if (_index > s) {
         return isGoodBeginning(_index - s);
     }
 
@@ -226,9 +203,8 @@ UInt16 getCharacterCode(const UInt32& data) {
     return _codeTable[key][markIndex - ((char)data >= 'A' && (char)data <= 'Z')];
 }
 
-void findAndCalculateVowel() {
-    vowelCount = 0;
-    VSI = VEI = 0;
+void calcVowels() {
+    vowelCount = VSI = VEI = 0;
     for (char i = _index - 1; i >= 0; i--) {
         if (CHR(i) != 'A' &&
             CHR(i) != 'E' &&
@@ -265,7 +241,7 @@ void calcMarkPosition() {
 }
 
 void removeMark(const char& charCode) {
-    findAndCalculateVowel();
+    calcVowels();
     calcMarkPosition();
 
     if (vowelCount && TypingWord[VWSM] & MARK_MASK) {
@@ -286,7 +262,7 @@ void removeMark(const char& charCode) {
 }
 
 void insertMark(const UInt32& markMask, const bool& canModifyFlag=true) {
-    findAndCalculateVowel();
+    calcVowels();
     calcMarkPosition();
 
     if (TypingWord[VWSM] & markMask) {
@@ -374,7 +350,7 @@ void insertD(const char& charCode) {
 }
 
 void insertAOE(const char& charCode) {
-    findAndCalculateVowel();
+    calcVowels();
 
     for (char i = VSI; i < _index; i++) {
         if (i <= VEI) {
@@ -396,14 +372,16 @@ void insertAOE(const char& charCode) {
 }
 
 void insertW(const char& charCode) {
-    findAndCalculateVowel();
+    calcVowels();
 
     if (vowelCount > 1) {
         if ((TypingWord[VSI] & TONEW_MASK && (TypingWord[VSI + 1] & TONEW_MASK ||
                                               CHR(VSI + 1) == 'I' ||
                                               CHR(VSI + 1) == 'A' ||
                                               CHR(VSI + 1) == 'U')) ||
-            (!(TypingWord[VSI] & TONEW_MASK) && TypingWord[VSI + 1] & TONEW_MASK && VSI == _index - 2)) {
+            (!(TypingWord[VSI] & TONEW_MASK) &&
+             TypingWord[VSI + 1] & TONEW_MASK &&
+             VSI == _index - 2)) {
             hCode = vRestore;
             TypingWord[VSI] &= ~(TONEW_MASK | STANDALONE_MASK);
             TypingWord[VSI + 1] &= ~(TONEW_MASK | STANDALONE_MASK);
@@ -515,7 +493,7 @@ void regulateSpelling(const int& deltaBackSpace) {
         return;
     }
 
-    findAndCalculateVowel();
+    calcVowels();
     if (!vowelCount) {
         return;
     }
@@ -546,7 +524,7 @@ void regulateSpelling(const int& deltaBackSpace) {
             if (TypingWord[i] & MARK_MASK) {
                 UInt32 mark = TypingWord[i] & MARK_MASK;
                 TypingWord[i] &= ~MARK_MASK;
-                findAndCalculateVowel();
+                calcVowels();
                 calcMarkPosition();
                 if (i != VWSM) {
                     needCorrect = true;
