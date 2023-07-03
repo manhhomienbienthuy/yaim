@@ -34,11 +34,11 @@ extern "C" {
 
     void init() {
         myEventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
-        pData = (vKeyHookState*)vKeyInit();
+        pData = (vKeyHookState*)vInit();
     }
 
     void restartEngine() {
-        vKeyInit();
+        vInit();
     }
 
     void sendEmptyCharacter(CGEventTapProxy _proxy) {
@@ -165,7 +165,7 @@ extern "C" {
             return event;
         }
 
-        vKeyHandleEvent(_charCode);
+        vHandleKey(_charCode);
         if (pData->code == vDoNothing) {
             return event;
         } else {

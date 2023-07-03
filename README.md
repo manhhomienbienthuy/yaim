@@ -11,8 +11,9 @@ yet another input method
 - Không có tùy biến, chỉ có thiết lập mặc định.
 - Chỉ hỗ trợ kiểu gõ Telex (Simple Telex 2) và bảng mã Unicode dựng sẵn.
 - Code được chỉnh sửa theo hướng đơn giản hơn, phù hợp với logic của app.
+- Thêm logic kiểm tra chính tả khi bỏ dấu.
 - Thêm tính năng giúp các phím F1~F12 hoạt động như phím media của MacBook
   khi kết hợp với `Fn`.
-- Ấn `ESC` để khôi phục các phím đã bấm.
+- Ấn `ESC` để khôi phục các phím đã bấm (sẽ bị xung đột nếu sử dụng vim).
 
 Copyright © 2023 [manhhomienbienthuy](https://manhhomienbienthuy.github.io/)

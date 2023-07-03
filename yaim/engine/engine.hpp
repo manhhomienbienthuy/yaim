@@ -14,8 +14,8 @@
 extern bool isVietnamese;
 extern bool isABCKeyboard;
 
-void* vKeyInit();
-void vKeyHandleEvent(const UInt16&);
+void* vInit();
+void vHandleKey(const UInt16&);
 
 
 #endif /* engine_hpp */

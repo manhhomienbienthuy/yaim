@@ -43,14 +43,14 @@ void startNewSession() {
     _index = _stateIndex = _spaceCount = 0;
 }
 
-void* vKeyInit() {
+void* vInit() {
     _typingStates.clear();
     _keyStates.clear();
     startNewSession();
     return &HookState;
 }
 
-void saveTypingHistory() {
+void saveHistory() {
     if (_index) {
         char i;
         vector<UInt32> _typingStatesData;
@@ -80,13 +80,13 @@ void addToTypingWord(const UInt16& charCode) {
 
 void addToTypingKeys(const UInt16& charCode) {
     if (_stateIndex >= MAX_BUFF) {
-        saveTypingHistory();
+        saveHistory();
         startNewSession();
     }
     TypingKeys[_stateIndex++] = charCode;
 }
 
-void restoreLastTypingState() {
+void restoreLastState() {
     if (_typingStates.size()) {
         vector<UInt32> _typingStatesData = _typingStates.back();
         _typingStates.pop_back();
@@ -375,10 +375,11 @@ void insertW(const char& charCode) {
     calcVowels();
 
     if (vowelCount > 1) {
-        if ((TypingWord[VSI] & TONEW_MASK && (TypingWord[VSI + 1] & TONEW_MASK ||
-                                              CHR(VSI + 1) == 'I' ||
-                                              CHR(VSI + 1) == 'A' ||
-                                              CHR(VSI + 1) == 'U')) ||
+        if ((TypingWord[VSI] & TONEW_MASK &&
+             (TypingWord[VSI + 1] & TONEW_MASK ||
+              CHR(VSI + 1) == 'I' ||
+              CHR(VSI + 1) == 'A' ||
+              CHR(VSI + 1) == 'U')) ||
             (!(TypingWord[VSI] & TONEW_MASK) &&
              TypingWord[VSI + 1] & TONEW_MASK &&
              VSI == _index - 2)) {
@@ -430,16 +431,14 @@ void insertW(const char& charCode) {
     hNCC = hBPC = _index - VSI;
 }
 
-void reserveLastStandaloneChar(const char& charCode) {
-    hCode = vWillProcess;
-    hNCC = hBPC = 0;
-    TypingWord[_index] = (charCode | TONEW_MASK | STANDALONE_MASK);
-    hData[hNCC++] = ORD(_index++);
-}
-
-void checkForStandaloneW(const char& charCode) {
-    if (!_index || isGoodBeginning(_index)) {
-        return reserveLastStandaloneChar(charCode == 'W' ? 'U' : 'u');
+void processStandalone(const char& charCode) {
+    if (toupper(charCode) == 'W' &&
+        (!_index || isGoodBeginning(_index))) {
+        hCode = vWillProcess;
+        TypingWord[_index] = (charCode == 'W' ? 'U' : 'u') | TONEW_MASK |
+            STANDALONE_MASK;
+        hData[hNCC++] = ORD(_index++);
+        return;
     }
 
     addToTypingWord(charCode);
@@ -462,11 +461,7 @@ void processTone(const char& charCode) {
         }
     }
 
-    if (toupper(charCode) == 'W') {
-        checkForStandaloneW(charCode);
-    } else {
-        addToTypingWord(charCode);
-    }
+    processStandalone(charCode);
 }
 
 void restoreTyping() {
@@ -550,7 +545,7 @@ void regulateSpelling(const int& deltaBackSpace) {
     }
 }
 
-void vKeyHandleEvent(const UInt16& charCode) {
+void vHandleKey(const UInt16& charCode) {
     if (charCode == 0x1b) { // ESC
         restoreTyping();
     } else if (charCode == 0x08) { // Backspace
@@ -560,7 +555,7 @@ void vKeyHandleEvent(const UInt16& charCode) {
         } else if (_index) {
             if (!--_index) {
                 _stateIndex = 0;
-                restoreLastTypingState();
+                restoreLastState();
             } else {
                 _stateIndex -= 1 +
                     (bool)(TypingWord[_index] & TONE_MASK) +
@@ -580,7 +575,7 @@ void vKeyHandleEvent(const UInt16& charCode) {
             (charCode >= 'A' && charCode <= 'Z' &&
              (char)TypingWord[_index - 1] >= 'a' &&
              (char)TypingWord[_index - 1] <= 'z')) {
-            saveTypingHistory();
+            saveHistory();
             startNewSession();
         }
 
