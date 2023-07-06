@@ -55,8 +55,8 @@ extern "C" {
     }
 
     void sendBackspaces(CGEventTapProxy _proxy) {
-        CGEventRef _down = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, true);
-        CGEventRef _up = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, false);
+        CGEventRef _down = CGEventCreateKeyboardEvent(myEventSource, kVK_Delete, true);
+        CGEventRef _up = CGEventCreateKeyboardEvent(myEventSource, kVK_Delete, false);
         for (char _i = 0; _i < pData->backspaceCount + 1; _i++) {
             CGEventTapPostEvent(_proxy, _down);
             CGEventTapPostEvent(_proxy, _up);
@@ -105,7 +105,7 @@ extern "C" {
         }
 
         CGEventFlags _flag = CGEventGetFlags(event);
-        CGKeyCode _keycode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+        CGKeyCode _keycode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
 
         // switch language shortcut
         if (type == kCGEventFlagsChanged) {
@@ -116,7 +116,7 @@ extern "C" {
                 return nil;
             }
             if (_keycode == kVK_Function) {
-                _isFnPressed = (_flag & kCGEventFlagMaskSecondaryFn);
+                _isFnPressed = (_flag & kCGEventFlagMaskSecondaryFn) != 0;
             }
         }
 
