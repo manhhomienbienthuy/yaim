@@ -158,7 +158,8 @@ extern "C" {
         if ((_flag & kCGEventFlagMaskCommand) ||
             (_flag & kCGEventFlagMaskControl) ||
             (_flag & kCGEventFlagMaskNumericPad) ||
-            (_flag & kCGEventFlagMaskHelp)) {
+            (_flag & kCGEventFlagMaskHelp) ||
+            (_flag & kCGEventFlagMaskSecondaryFn)) {
             restartEngine();
             return event;
         }
@@ -169,6 +170,10 @@ extern "C" {
         if (!_tmp) {
             restartEngine();
             return event;
+        }
+
+        if (_charCode == 0x08 && _flag & kCGEventFlagMaskAlternate) {
+            _charCode = 0x7f;
         }
 
         vHandleKey(_charCode);

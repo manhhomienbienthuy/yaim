@@ -539,6 +539,12 @@ void regulateSpelling(const int& deltaBackSpace) {
 void vHandleKey(const UInt16& charCode) {
     if (charCode == 0x1b) { // ESC
         restoreTyping();
+    } else if (charCode == 0x7f) { // Option + Backspace
+        hCode = vDoNothing;
+        _index = _stateIndex = _spaceCount = 0;
+        while (_typingStates.size() && !_spaceCount) {
+            restoreLastState();
+        }
     } else if (charCode == 0x08) { // Backspace
         hCode = vDoNothing;
         if (_spaceCount) {
