@@ -30,7 +30,8 @@ extern "C" {
         {kVK_F11, NX_KEYTYPE_SOUND_DOWN},
         {kVK_F12, NX_KEYTYPE_SOUND_UP},
     };
-    vector<CGKeyCode> ShortcutKeys = {kVK_Shift, kVK_RightShift, kVK_Control, kVK_RightControl};
+    vector<CGKeyCode> ShortcutKeys = {
+        kVK_Shift, kVK_RightShift, kVK_Control, kVK_RightControl};
 
     void init() {
         myEventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
@@ -43,37 +44,37 @@ extern "C" {
 
     void sendEmptyCharacter(CGEventTapProxy _proxy) {
         UniChar _newChar = 0x202f; // empty char
-        CGEventRef _newEventDown = CGEventCreateKeyboardEvent(myEventSource, 0, true);
-        CGEventRef _newEventUp = CGEventCreateKeyboardEvent(myEventSource, 0, false);
-        CGEventKeyboardSetUnicodeString(_newEventDown, 1, &_newChar);
-        CGEventKeyboardSetUnicodeString(_newEventUp, 1, &_newChar);
-        CGEventTapPostEvent(_proxy, _newEventDown);
-        CGEventTapPostEvent(_proxy, _newEventUp);
-        CFRelease(_newEventDown);
-        CFRelease(_newEventUp);
+        CGEventRef _down = CGEventCreateKeyboardEvent(myEventSource, 0, true);
+        CGEventRef _up = CGEventCreateKeyboardEvent(myEventSource, 0, false);
+        CGEventKeyboardSetUnicodeString(_down, 1, &_newChar);
+        CGEventKeyboardSetUnicodeString(_up, 1, &_newChar);
+        CGEventTapPostEvent(_proxy, _down);
+        CGEventTapPostEvent(_proxy, _up);
+        CFRelease(_down);
+        CFRelease(_up);
     }
 
     void sendBackspaces(CGEventTapProxy _proxy) {
-        CGEventRef _newEventDown = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, true);
-        CGEventRef _newEventUp = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, false);
+        CGEventRef _down = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, true);
+        CGEventRef _up = CGEventCreateKeyboardEvent (myEventSource, kVK_Delete, false);
         for (char _i = 0; _i < pData->backspaceCount + 1; _i++) {
-            CGEventTapPostEvent(_proxy, _newEventDown);
-            CGEventTapPostEvent(_proxy, _newEventUp);
+            CGEventTapPostEvent(_proxy, _down);
+            CGEventTapPostEvent(_proxy, _up);
         }
-        CFRelease(_newEventDown);
-        CFRelease(_newEventUp);
+        CFRelease(_down);
+        CFRelease(_up);
     }
 
     void sendCharData(CGEventTapProxy _proxy) {
         if (pData->newCharCount > 0) {
-            CGEventRef _newEventDown = CGEventCreateKeyboardEvent(myEventSource, 0, true);
-            CGEventRef _newEventUp = CGEventCreateKeyboardEvent(myEventSource, 0, false);
-            CGEventKeyboardSetUnicodeString(_newEventDown, pData->newCharCount, pData->charData);
-            CGEventKeyboardSetUnicodeString(_newEventUp, pData->newCharCount, pData->charData);
-            CGEventTapPostEvent(_proxy, _newEventDown);
-            CGEventTapPostEvent(_proxy, _newEventUp);
-            CFRelease(_newEventDown);
-            CFRelease(_newEventUp);
+            CGEventRef _down = CGEventCreateKeyboardEvent(myEventSource, 0, true);
+            CGEventRef _up = CGEventCreateKeyboardEvent(myEventSource, 0, false);
+            CGEventKeyboardSetUnicodeString(_down, pData->newCharCount, pData->charData);
+            CGEventKeyboardSetUnicodeString(_up, pData->newCharCount, pData->charData);
+            CGEventTapPostEvent(_proxy, _down);
+            CGEventTapPostEvent(_proxy, _up);
+            CFRelease(_down);
+            CFRelease(_up);
         }
     }
 
@@ -95,7 +96,10 @@ extern "C" {
         }
 
         // handle mouse
-        if (type == kCGEventLeftMouseDown || type == kCGEventRightMouseDown || type == kCGEventLeftMouseDragged || type == kCGEventRightMouseDragged) {
+        if (type == kCGEventLeftMouseDown ||
+            type == kCGEventRightMouseDown ||
+            type == kCGEventLeftMouseDragged ||
+            type == kCGEventRightMouseDragged) {
             restartEngine();
             return event;
         }
@@ -116,31 +120,33 @@ extern "C" {
             }
         }
 
-        if (_isFnPressed && type == kCGEventKeyDown && _flag & kCGEventFlagMaskSecondaryFn) {
+        if (_isFnPressed &&
+            type == kCGEventKeyDown &&
+            _flag & kCGEventFlagMaskSecondaryFn) {
             if (FuncKeyMap.find(_keycode) != FuncKeyMap.end()) {
-                CGKeyCode code = FuncKeyMap[_keycode];
-                CGEventRef _newEventDown = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
-                                                               location:NSZeroPoint
-                                                          modifierFlags:0xa00
-                                                              timestamp:0
-                                                           windowNumber:0
-                                                                context:nil
-                                                                subtype:8
-                                                                  data1:((code << 16) | (0xa << 8))
-                                                                  data2:-1]
-                                            CGEvent];
-                CGEventRef _newEventUp = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
-                                                             location:NSZeroPoint
-                                                        modifierFlags:0xb00
-                                                            timestamp:0
-                                                         windowNumber:0
-                                                              context:nil
-                                                              subtype:8
-                                                                data1:((code << 16) | (0xb << 8))
-                                                                data2:-1]
-                                          CGEvent];
-                CGEventPost(kCGHIDEventTap, _newEventDown);
-                CGEventPost(kCGHIDEventTap, _newEventUp);
+                CGKeyCode _code = FuncKeyMap[_keycode];
+                CGEventRef _down = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
+                                                       location:NSZeroPoint
+                                                  modifierFlags:0xa00
+                                                      timestamp:0
+                                                   windowNumber:0
+                                                        context:nil
+                                                        subtype:8
+                                                          data1:((_code << 16) | (0xa << 8))
+                                                          data2:-1]
+                                    CGEvent];
+                CGEventRef _up = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
+                                                     location:NSZeroPoint
+                                                modifierFlags:0xb00
+                                                    timestamp:0
+                                                 windowNumber:0
+                                                      context:nil
+                                                      subtype:8
+                                                        data1:((_code << 16) | (0xb << 8))
+                                                        data2:-1]
+                                  CGEvent];
+                CGEventPost(kCGHIDEventTap, _down);
+                CGEventPost(kCGHIDEventTap, _up);
                 return nil;
             }
         }
