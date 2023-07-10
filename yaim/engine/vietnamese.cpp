@@ -73,6 +73,10 @@ map<char, vector<vector<char>>> _rimesForTone = {
             {'Y', 'E', 'T'},
             {'Y', 'E', 'U'},
             {'U', 'E'},
+            {'U', 'E', 'C'},
+            {'U', 'E', 'N'},
+            {'U', 'E', 'C', 'H'},
+            {'U', 'E', 'N', 'H'},
             {'U', 'Y', 'E'},
             {'U', 'Y', 'E', 'N'},
             {'U', 'Y', 'E', 'T'},
@@ -154,7 +158,6 @@ vector<vector<char>> _rimesForMark = {
     {'U', 'A', 'Y'},
     {'U', 'A', 'T'},
     {'U', 'A'},
-    {'U', 'Y', 'A'},
     // 'O'
     {'O', 'O', 'N', 'G'},
     {'O', 'N', 'G'},
@@ -199,8 +202,11 @@ vector<vector<char>> _rimesForMark = {
     {'O', 'E', 'T'},
     {'O', 'E', 'N'},
     {'O', 'E'},
+    {'U', 'E', 'C', 'H'},
     {'U', 'E', 'N', 'H'},
     {'U', 'E'},
+    {'U', 'E', 'C'},
+    {'U', 'E', 'N'},
     {'Y', 'E', 'T'},
     {'Y', 'E', 'U'},
     {'Y', 'E', 'N'},
@@ -242,6 +248,8 @@ vector<vector<char>> _rimesForMark = {
     {'U', 'Y', 'T'},
     {'U', 'Y', 'P'},
     {'U', 'Y'},
+    {'U', 'Y', 'A'},
+    {'U', 'Y', 'U'},
 };
 
 vector<vector<char>> _beginConsonants = {
