@@ -241,6 +241,8 @@ vector<vector<char>> _rimesForMark = {
     {'U', 'P'},
     {'U'},
     // 'Y'
+    {'Y', 'N', 'H'},
+    {'Y', 'N'},
     {'Y', 'T'},
     {'Y'},
     {'U', 'Y', 'N', 'H'},
