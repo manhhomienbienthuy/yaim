@@ -108,6 +108,7 @@ void restoreLastState() {
 
 void calcVowels() {
     vowelCount = VSI = VEI = 0;
+
     for (char i = _index - 1; i >= 0; i--) {
         if (CHR(i) != 'A' &&
             CHR(i) != 'E' &&
@@ -167,7 +168,7 @@ char findCombination(vector<vector<char>>& charsets,
     return -1;
 }
 
-bool isGoodSpelling(vector<vector<char>>& rimesCharset, const char& markKey) {
+bool isGoodSpelling(vector<vector<char>>& rimesCharset) {
     calcVowels();
 
     if (!vowelCount) {
@@ -182,15 +183,14 @@ bool isGoodSpelling(vector<vector<char>>& rimesCharset, const char& markKey) {
         }
 
         char firstVowel = CHR(VSI);
-        if (VSI < _index &&
-            (((found == 0 || found == 13) && // K or NGH
-              firstVowel != 'I' &&
-              firstVowel !='E' &&
-              firstVowel != 'Y') ||
-             (found == 7 && // NG
-              firstVowel != 'A' &&
-              firstVowel != 'U' &&
-              firstVowel != 'O'))) {
+        if (((found == 0 || found == 13) && // K or NGH
+             firstVowel != 'I' &&
+             firstVowel !='E' &&
+             firstVowel != 'Y') ||
+            (found == 7 && // NG
+             firstVowel != 'A' &&
+             firstVowel != 'U' &&
+             firstVowel != 'O')) {
             return false;
         }
     }
@@ -229,9 +229,9 @@ UInt16 getCharacterCode(const UInt32& data) {
 
 void removeMark(const char& charCode) {
     calcVowels();
-    calcMarkPosition();
 
     if (vowelCount && TypingWord[VSM] & MARK_MASK) {
+        calcMarkPosition();
         TypingWord[VSM] &= ~MARK_MASK;
         hCode = vWillProcess;
         for (char i = VSM; i < _index; i++) {
@@ -291,9 +291,8 @@ bool isLimitedMark() {
 }
 
 void processMark(const char& charCode) {
-    char markKey = toupper(charCode);
-    if (isGoodSpelling(_rimesForMark, markKey)) {
-        switch (markKey) {
+    if (isGoodSpelling(_rimesForMark)) {
+        switch (toupper(charCode)) {
             case 'S':
                 return insertMark(MARK1_MASK);
             case 'F':
@@ -322,7 +321,7 @@ void processMark(const char& charCode) {
 void insertD(const char& charCode) {
     if (CHR(0) == 'D' &&
         (_index == 1 ||
-         isGoodSpelling(_rimesForMark, 'D'))) {
+         isGoodSpelling(_rimesForMark))) {
         if (TypingWord[0] & TONE_MASK) {
             // restore
             TypingWord[0] &= ~TONE_MASK;
@@ -435,9 +434,7 @@ void processStandalone(const char& charCode) {
 }
 
 void processTone(const char& charCode) {
-    vector<vector<char>>& charset = _rimesForTone[toupper(charCode)];
-
-    if (isGoodSpelling(charset, toupper(charCode))) {
+    if (isGoodSpelling(_rimesForTone[toupper(charCode)])) {
         if (toupper(charCode) == 'W') {
             insertW(charCode);
         } else {
@@ -469,7 +466,7 @@ void restoreTyping() {
 }
 
 void regulateSpelling(const int& deltaBackSpace) {
-    if (_index <= 1) {
+    if (_index < 2) {
         return;
     }
 
