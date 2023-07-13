@@ -13,6 +13,8 @@
 extern AppDelegate* appDelegate;
 
 extern "C" {
+    #define allowVietnamese (isVietnamese && isABCKeyboard)
+
     CGEventSourceRef myEventSource = nil;
     vKeyHookState* pData;
     BOOL _isFnPressed = false;
@@ -90,17 +92,15 @@ extern "C" {
      * MAIN Callback.
      */
     CGEventRef callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
-        // dont handle my event
+        // don't handle my event
         if (CGEventGetIntegerValueField(event, kCGEventSourceStateID) == CGEventSourceGetSourceStateID(myEventSource)) {
             return event;
         }
 
-        // handle mouse
-        if (type == kCGEventLeftMouseDown ||
-            type == kCGEventRightMouseDown ||
-            type == kCGEventLeftMouseDragged ||
-            type == kCGEventRightMouseDragged) {
-            restartEngine();
+        if (type != kCGEventFlagsChanged && type != kCGEventKeyDown) {
+            if (allowVietnamese) {
+                restartEngine();
+            }
             return event;
         }
 
@@ -118,40 +118,38 @@ extern "C" {
             if (_keycode == kVK_Function) {
                 _isFnPressed = (_flag & kCGEventFlagMaskSecondaryFn) != 0;
             }
+            return event;
         }
 
-        if (_isFnPressed &&
-            type == kCGEventKeyDown &&
-            _flag & kCGEventFlagMaskSecondaryFn) {
-            if (FuncKeyMap.find(_keycode) != FuncKeyMap.end()) {
-                CGKeyCode _code = FuncKeyMap[_keycode];
-                CGEventRef _down = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
-                                                       location:NSZeroPoint
-                                                  modifierFlags:0xa00
-                                                      timestamp:0
-                                                   windowNumber:0
-                                                        context:nil
-                                                        subtype:8
-                                                          data1:((_code << 16) | (0xa << 8))
-                                                          data2:-1]
-                                    CGEvent];
-                CGEventRef _up = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
-                                                     location:NSZeroPoint
-                                                modifierFlags:0xb00
-                                                    timestamp:0
-                                                 windowNumber:0
-                                                      context:nil
-                                                      subtype:8
-                                                        data1:((_code << 16) | (0xb << 8))
-                                                        data2:-1]
-                                  CGEvent];
-                CGEventPost(kCGHIDEventTap, _down);
-                CGEventPost(kCGHIDEventTap, _up);
-                return nil;
-            }
+        if (_isFnPressed && _flag & kCGEventFlagMaskSecondaryFn &&
+            FuncKeyMap.find(_keycode) != FuncKeyMap.end()) {
+            CGKeyCode _code = FuncKeyMap[_keycode];
+            CGEventRef _down = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
+                                                   location:NSZeroPoint
+                                              modifierFlags:0xa00
+                                                  timestamp:0
+                                               windowNumber:0
+                                                    context:nil
+                                                    subtype:8
+                                                      data1:((_code << 16) | (0xa << 8))
+                                                      data2:-1]
+                                CGEvent];
+            CGEventRef _up = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
+                                                 location:NSZeroPoint
+                                            modifierFlags:0xb00
+                                                timestamp:0
+                                             windowNumber:0
+                                                  context:nil
+                                                  subtype:8
+                                                    data1:((_code << 16) | (0xb << 8))
+                                                    data2:-1]
+                              CGEvent];
+            CGEventPost(kCGHIDEventTap, _down);
+            CGEventPost(kCGHIDEventTap, _up);
+            return nil;
         }
 
-        if (type != kCGEventKeyDown || !isVietnamese || !isABCKeyboard) {
+        if (!allowVietnamese) {
             return event;
         }
 

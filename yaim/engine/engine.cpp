@@ -13,21 +13,21 @@
 #define hCode HookState.code
 #define hData HookState.charData
 #define ORD(index) getCharacterCode(TypingWord[index])
-#define CHR(index) toupper((UInt16)TypingWord[index])
+#define CHR(index) (TypingWord[index] & CAP_MASK)
 
 vKeyHookState HookState;
 
 /**
  * data structure of each element in TypingWord (Uint64)
- * first 16 bits is character code
- * bit 17: has tone ^ or not
- * bit 18: has tone w or not
- * bit 19-23: has mark or not (sắc, huyền, hỏi, ngã, nặng)
- * bit 24: is standalone key? (w)
+ * first byte is character code
+ * bit 9: has tone ^ or not
+ * bit 10: has tone w or not
+ * bit 11-15: has mark or not (sắc, huyền, hỏi, ngã, nặng)
+ * bit 16: is standalone key? (w)
  */
-UInt32 TypingWord[MAX_BUFF];
+UInt16 TypingWord[MAX_BUFF];
 char _index = 0;
-vector<vector<UInt32>> _typingStates;
+vector<vector<UInt16>> _typingStates;
 
 char TypingKeys[MAX_BUFF];
 char _stateIndex = 0;
@@ -53,7 +53,7 @@ void* vInit() {
 void saveHistory() {
     if (_index) {
         char i;
-        vector<UInt32> _typingStatesData;
+        vector<UInt16> _typingStatesData;
         for (i = 0; i < _index; i++) {
             _typingStatesData.push_back(TypingWord[i]);
         }
@@ -74,11 +74,11 @@ void saveHistory() {
     }
 }
 
-void addToTypingWord(const UInt16& charCode) {
+void addToTypingWord(const char& charCode) {
     TypingWord[_index++] = charCode;
 }
 
-void addToTypingKeys(const UInt16& charCode) {
+void addToTypingKeys(const char& charCode) {
     if (_stateIndex >= MAX_BUFF) {
         saveHistory();
         startNewSession();
@@ -88,7 +88,7 @@ void addToTypingKeys(const UInt16& charCode) {
 
 void restoreLastState() {
     if (_typingStates.size()) {
-        vector<UInt32> _typingStatesData = _typingStates.back();
+        vector<UInt16> _typingStatesData = _typingStates.back();
         _typingStates.pop_back();
         vector<char> _keyStatesData = _keyStates.back();
         _keyStates.pop_back();
@@ -108,6 +108,7 @@ void restoreLastState() {
 
 void calcVowels() {
     vowelCount = VSI = VEI = 0;
+
     for (char i = _index - 1; i >= 0; i--) {
         if (CHR(i) != 'A' &&
             CHR(i) != 'E' &&
@@ -167,7 +168,7 @@ char findCombination(vector<vector<char>>& charsets,
     return -1;
 }
 
-bool isGoodSpelling(vector<vector<char>>& rimesCharset, const char& markKey) {
+bool isGoodSpelling(vector<vector<char>>& rimesCharset) {
     calcVowels();
 
     if (!vowelCount) {
@@ -182,15 +183,14 @@ bool isGoodSpelling(vector<vector<char>>& rimesCharset, const char& markKey) {
         }
 
         char firstVowel = CHR(VSI);
-        if (VSI < _index &&
-            (((found == 0 || found == 13) && // K or NGH
-              firstVowel != 'I' &&
-              firstVowel !='E' &&
-              firstVowel != 'Y') ||
-             (found == 7 && // NG
-              firstVowel != 'A' &&
-              firstVowel != 'U' &&
-              firstVowel != 'O'))) {
+        if (((found == 0 || found == 13) && // K or NGH
+             firstVowel != 'I' &&
+             firstVowel !='E' &&
+             firstVowel != 'Y') ||
+            (found == 7 && // NG
+             firstVowel != 'A' &&
+             firstVowel != 'U' &&
+             firstVowel != 'O')) {
             return false;
         }
     }
@@ -198,40 +198,40 @@ bool isGoodSpelling(vector<vector<char>>& rimesCharset, const char& markKey) {
     return findCombination(rimesCharset, _index - VSI, VSI) > -1;
 }
 
-UInt16 getCharacterCode(const UInt32& data) {
+UInt16 getCharacterCode(const UInt16& data) {
     if (!(data & PROCESS_MASK)) {
         return data;
     }
 
-    UInt32 key = data & (toupper((char)data) | TONE_MASK | TONEW_MASK);
-    char markIndex = 1;
+    UInt16 key = data & (CAP_MASK | TONE_MASK | TONEW_MASK);
+    char markIndex = 0;
 
     switch (data & MARK_MASK) {
         case MARK1_MASK:
-            markIndex = 3;
+            markIndex = 2;
             break;
         case MARK2_MASK:
-            markIndex = 5;
+            markIndex = 4;
             break;
         case MARK3_MASK:
-            markIndex = 7;
+            markIndex = 6;
             break;
         case MARK4_MASK:
-            markIndex = 9;
+            markIndex = 8;
             break;
         case MARK5_MASK:
-            markIndex = 11;
+            markIndex = 10;
             break;
     }
 
-    return _codeTable[key][markIndex - ((char)data >= 'A' && (char)data <= 'Z')];
+    return _codeTable[key][markIndex + (data >> 5 & 1)];
 }
 
 void removeMark(const char& charCode) {
     calcVowels();
-    calcMarkPosition();
 
     if (vowelCount && TypingWord[VSM] & MARK_MASK) {
+        calcMarkPosition();
         TypingWord[VSM] &= ~MARK_MASK;
         hCode = vWillProcess;
         for (char i = VSM; i < _index; i++) {
@@ -248,7 +248,7 @@ void removeMark(const char& charCode) {
     }
 }
 
-void insertMark(const UInt32& markMask, const bool& canModifyFlag=true) {
+void insertMark(const UInt16& markMask, const bool& canModifyFlag=true) {
     calcMarkPosition();
 
     if (TypingWord[VSM] & markMask) {
@@ -291,9 +291,8 @@ bool isLimitedMark() {
 }
 
 void processMark(const char& charCode) {
-    char markKey = toupper(charCode);
-    if (isGoodSpelling(_rimesForMark, markKey)) {
-        switch (markKey) {
+    if (isGoodSpelling(_rimesForMark)) {
+        switch (charCode & CAP_MASK) {
             case 'S':
                 return insertMark(MARK1_MASK);
             case 'F':
@@ -322,7 +321,7 @@ void processMark(const char& charCode) {
 void insertD(const char& charCode) {
     if (CHR(0) == 'D' &&
         (_index == 1 ||
-         isGoodSpelling(_rimesForMark, 'D'))) {
+         isGoodSpelling(_rimesForMark))) {
         if (TypingWord[0] & TONE_MASK) {
             // restore
             TypingWord[0] &= ~TONE_MASK;
@@ -349,7 +348,7 @@ void insertAOE(const char& charCode) {
             TypingWord[i] &= ~TONEW_MASK;
         }
 
-        if (CHR(i) == toupper(charCode)) {
+        if (CHR(i) == charCode) {
             if (TypingWord[i] & TONE_MASK) {
                 TypingWord[i] &= ~TONE_MASK;
                 hCode = vRestore;
@@ -422,11 +421,10 @@ void insertW(const char& charCode) {
 }
 
 void processStandalone(const char& charCode) {
-    if (toupper(charCode) == 'W' &&
+    if ((charCode == 'W' || charCode == 'w') &&
         (!_index || findCombination(_beginConsonants, _index, 0) > -1)) {
         hCode = vWillProcess;
-        TypingWord[_index] = (charCode == 'W' ? 'U' : 'u') | TONEW_MASK |
-            STANDALONE_MASK;
+        TypingWord[_index] = (charCode == 'W' ? 'U' : 'u') | TONEW_MASK | STANDALONE_MASK;
         hData[hNCC++] = ORD(_index++);
         return;
     }
@@ -435,13 +433,11 @@ void processStandalone(const char& charCode) {
 }
 
 void processTone(const char& charCode) {
-    vector<vector<char>>& charset = _rimesForTone[toupper(charCode)];
-
-    if (isGoodSpelling(charset, toupper(charCode))) {
-        if (toupper(charCode) == 'W') {
+    if (isGoodSpelling(_rimesForTone[charCode & CAP_MASK])) {
+        if (charCode == 'W' || charCode == 'w') {
             insertW(charCode);
         } else {
-            insertAOE(charCode);
+            insertAOE(charCode & CAP_MASK);
         }
         return;
     }
@@ -469,7 +465,24 @@ void restoreTyping() {
 }
 
 void regulateSpelling(const int& deltaBackSpace) {
-    if (_index <= 1) {
+    if (_index < 2 ||
+        (CHR(_index - 1) != 'A' &&
+         CHR(_index - 1) != 'E' &&
+         CHR(_index - 1) != 'U' &&
+         CHR(_index - 1) != 'Y' &&
+         CHR(_index - 1) != 'I' &&
+         CHR(_index - 1) != 'O' &&
+         ((CHR(_index - 1) != 'C' &&
+           CHR(_index - 1) != 'M' &&
+           CHR(_index - 1) != 'N' &&
+           CHR(_index - 1) != 'P' &&
+           CHR(_index - 1) != 'T') ||
+          (CHR(_index - 2) != 'A' &&
+           CHR(_index - 2) != 'E' &&
+           CHR(_index - 2) != 'U' &&
+           CHR(_index - 2) != 'Y' &&
+           CHR(_index - 2) != 'I' &&
+           CHR(_index - 2) != 'O')))) {
         return;
     }
 
@@ -502,7 +515,7 @@ void regulateSpelling(const int& deltaBackSpace) {
     if (_index >= 2) {
         for (i = VSI; i <= VEI; i++) {
             if (TypingWord[i] & MARK_MASK) {
-                UInt32 mark = TypingWord[i] & MARK_MASK;
+                UInt16 mark = TypingWord[i] & MARK_MASK;
                 TypingWord[i] &= ~MARK_MASK;
                 calcVowels();
                 calcMarkPosition();
@@ -574,7 +587,7 @@ void vHandleKey(const UInt16& charCode) {
         hCode = vDoNothing;
         hNCC = hBPC = 0;
 
-        switch (toupper(charCode)) {
+        switch (charCode & CAP_MASK) {
             case 'Z':
                 removeMark(charCode);
                 break;
@@ -599,10 +612,7 @@ void vHandleKey(const UInt16& charCode) {
                 break;
         }
 
-        if (toupper(charCode) >= 'A' && toupper(charCode) <= 'Z' &&
-            toupper(charCode) != 'D') {
-            regulateSpelling(0 - (hCode == vDoNothing));
-        }
+        regulateSpelling(0 - (hCode == vDoNothing || hBPC == 0));
 
         if (hCode == vRestore) {
             addToTypingWord(charCode);

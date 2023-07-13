@@ -34,18 +34,19 @@ static CFRunLoopSourceRef runLoopSource;
 
 + (BOOL)initEventTap {
     if (_isInited)
-        return true;
+        return YES;
 
     init();
 
     // Create an event tap. We are interested in key presses.
-    eventMask = ((1 << kCGEventKeyDown) |
-                 (1 << kCGEventKeyUp) |
-                 (1 << kCGEventFlagsChanged) |
-                 (1 << kCGEventLeftMouseDown) |
-                 (1 << kCGEventRightMouseDown) |
-                 (1 << kCGEventLeftMouseDragged) |
-                 (1 << kCGEventRightMouseDragged));
+    eventMask = CGEventMaskBit(kCGEventKeyDown) |
+        CGEventMaskBit(kCGEventFlagsChanged) |
+        CGEventMaskBit(kCGEventLeftMouseDown) |
+        CGEventMaskBit(kCGEventRightMouseDown) |
+        CGEventMaskBit(kCGEventLeftMouseDragged) |
+        CGEventMaskBit(kCGEventRightMouseDragged) |
+        CGEventMaskBit(kCGEventOtherMouseDown) |
+        CGEventMaskBit(kCGEventOtherMouseDragged);
 
     eventTap = CGEventTapCreate(kCGSessionEventTap,
                                 kCGHeadInsertEventTap,
@@ -68,7 +69,7 @@ static CFRunLoopSourceRef runLoopSource;
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
 
     // Enable the event tap.
-    CGEventTapEnable(eventTap, true);
+    CGEventTapEnable(eventTap, YES);
 
     // Set it all running.
     CFRunLoopRun();
@@ -88,7 +89,7 @@ static CFRunLoopSourceRef runLoopSource;
         CFRelease(eventTap);
         eventTap = nil;
 
-        _isInited = false;
+        _isInited = NO;
     }
     return YES;
 }

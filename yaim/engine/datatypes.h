@@ -15,7 +15,6 @@
 #define MAX_WORD 3
 
 //typedef unsigned short UInt16;
-//typedef unsigned int UInt32;
 
 enum HoolCodeState {
     vDoNothing = 0,
@@ -32,16 +31,17 @@ struct vKeyHookState {
 };
 
 enum {
-    TONE_MASK       = 1 << 17, // ^ tone
-    TONEW_MASK      = 1 << 18, // tone ă, ư, ơ
-    MARK1_MASK      = 1 << 19, // sắc
-    MARK2_MASK      = 1 << 20, // huyền
-    MARK3_MASK      = 1 << 21, // hỏi
-    MARK4_MASK      = 1 << 22, // ngã
-    MARK5_MASK      = 1 << 23, // nặng
-    STANDALONE_MASK = 1 << 24, // standalone key (w)
-    MARK_MASK       = 0x1f << 19,
-    PROCESS_MASK    = 0xff << 17,
+    CAP_MASK        = 0xdf, // 0xff & ~(1 << 5)
+    TONE_MASK       = 1 << 8, // ^ tone
+    TONEW_MASK      = 1 << 9, // tone ă, ư, ơ
+    MARK1_MASK      = 1 << 10, // sắc
+    MARK2_MASK      = 1 << 11, // huyền
+    MARK3_MASK      = 1 << 12, // hỏi
+    MARK4_MASK      = 1 << 13, // ngã
+    MARK5_MASK      = 1 << 14, // nặng
+    STANDALONE_MASK = 1 << 15, // standalone key (w)
+    MARK_MASK       = 0x1f << 10,
+    PROCESS_MASK    = 0xff << 8,
 };
 
 
