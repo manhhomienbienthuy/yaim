@@ -21,8 +21,6 @@ extern "C" {
     map<CGKeyCode, CGKeyCode> FuncKeyMap = {
         {kVK_F1, NX_KEYTYPE_BRIGHTNESS_DOWN},
         {kVK_F2, NX_KEYTYPE_BRIGHTNESS_UP},
-//        {kVK_F3, NX_KEYTYPE_CONTRAST_DOWN},
-//        {kVK_F4, NX_KEYTYPE_CONTRAST_UP},
         {kVK_F5, NX_KEYTYPE_ILLUMINATION_DOWN},
         {kVK_F6, NX_KEYTYPE_ILLUMINATION_UP},
         {kVK_F7, NX_KEYTYPE_PREVIOUS},
@@ -31,6 +29,10 @@ extern "C" {
         {kVK_F10, NX_KEYTYPE_MUTE},
         {kVK_F11, NX_KEYTYPE_SOUND_DOWN},
         {kVK_F12, NX_KEYTYPE_SOUND_UP},
+    };
+    map<CGKeyCode, NSString*> OpenAppMap = {
+        {kVK_F3, @"com.apple.exposelauncher"},
+        {kVK_F4, @"com.apple.launchpad.launcher"},
     };
     vector<CGKeyCode> ShortcutKeys = {
         kVK_Shift, kVK_RightShift, kVK_Control, kVK_RightControl};
@@ -121,32 +123,42 @@ extern "C" {
             return event;
         }
 
-        if (_isFnPressed && _flag & kCGEventFlagMaskSecondaryFn &&
-            FuncKeyMap.find(_keycode) != FuncKeyMap.end()) {
-            CGKeyCode _code = FuncKeyMap[_keycode];
-            CGEventRef _down = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
-                                                   location:NSZeroPoint
-                                              modifierFlags:0xa00
-                                                  timestamp:0
-                                               windowNumber:0
-                                                    context:nil
-                                                    subtype:8
-                                                      data1:((_code << 16) | (0xa << 8))
-                                                      data2:-1]
-                                CGEvent];
-            CGEventRef _up = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
-                                                 location:NSZeroPoint
-                                            modifierFlags:0xb00
-                                                timestamp:0
-                                             windowNumber:0
-                                                  context:nil
-                                                  subtype:8
-                                                    data1:((_code << 16) | (0xb << 8))
-                                                    data2:-1]
-                              CGEvent];
-            CGEventPost(kCGHIDEventTap, _down);
-            CGEventPost(kCGHIDEventTap, _up);
-            return nil;
+        if (_isFnPressed && _flag & kCGEventFlagMaskSecondaryFn) {
+            if (FuncKeyMap.find(_keycode) != FuncKeyMap.end()) {
+                CGKeyCode _code = FuncKeyMap[_keycode];
+                CGEventRef _down = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
+                                                       location:NSZeroPoint
+                                                  modifierFlags:0xa00
+                                                      timestamp:0
+                                                   windowNumber:0
+                                                        context:nil
+                                                        subtype:8
+                                                          data1:((_code << 16) | (0xa << 8))
+                                                          data2:-1]
+                                    CGEvent];
+                CGEventRef _up = [[NSEvent otherEventWithType:NSEventTypeSystemDefined
+                                                     location:NSZeroPoint
+                                                modifierFlags:0xb00
+                                                    timestamp:0
+                                                 windowNumber:0
+                                                      context:nil
+                                                      subtype:8
+                                                        data1:((_code << 16) | (0xb << 8))
+                                                        data2:-1]
+                                  CGEvent];
+                CGEventPost(kCGHIDEventTap, _down);
+                CGEventPost(kCGHIDEventTap, _up);
+                return nil;
+            }
+
+            if (OpenAppMap.find(_keycode) != OpenAppMap.end()) {
+                NSURL* url = [[NSWorkspace sharedWorkspace]
+                              URLForApplicationWithBundleIdentifier:OpenAppMap[_keycode]];
+                [[NSWorkspace sharedWorkspace] openApplicationAtURL:url
+                                                      configuration:[NSWorkspaceOpenConfiguration configuration]
+                                                  completionHandler:nil];
+                return nil;
+            }
         }
 
         if (!allowVietnamese) {
