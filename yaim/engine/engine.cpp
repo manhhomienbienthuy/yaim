@@ -544,7 +544,7 @@ void regulateSpelling(const int& deltaBackSpace) {
 }
 
 void vHandleKey(const UInt16& charCode) {
-    if (charCode == 0x1b) { // ESC
+    if (charCode == 0x00) { // Option + ESC
         restoreTyping();
     } else if (charCode == 0x7f) { // Option + Backspace
         hCode = vDoNothing;

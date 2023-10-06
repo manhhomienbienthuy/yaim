@@ -184,6 +184,8 @@ extern "C" {
 
         if (_charCode == 0x08 && _flag & kCGEventFlagMaskAlternate) {
             _charCode = 0x7f;
+        } else if (_charCode == 0x1b && _flag & kCGEventFlagMaskAlternate) {
+            _charCode = 0x00;
         }
 
         vHandleKey(_charCode);
