@@ -573,7 +573,7 @@ void vHandleKey(const UInt16& charCode) {
         }
     } else if (toupper(charCode) < 'A' || toupper(charCode) > 'Z') {
         hCode = vDoNothing;
-        _spaceCount++;
+        _spaceCount += charCode != 0x1b; // ESC
     } else {
         if (_spaceCount ||
             (charCode >= 'A' && charCode <= 'Z' &&
