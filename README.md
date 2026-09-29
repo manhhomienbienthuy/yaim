@@ -6,6 +6,7 @@ yet another input method
 [OpenKey](https://github.com/tuyenvm/OpenKey),
 được viết lại cho phù hợp với việc sử dụng của cá nhân tôi.
 
+- Viêt lại bằng ngôn ngữ lập trình Swift.
 - Chỉ là bộ gõ cho macOS, không có các tính năng khác (ví dụ như đổi
   bảng mã, gõ tắt, v.v...) và không có cửa sổ ứng dụng.
 - Không có tùy biến, chỉ có thiết lập mặc định.

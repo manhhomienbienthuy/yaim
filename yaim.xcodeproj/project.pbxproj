@@ -7,32 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		212339CE29DAA0F5000C48EE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 212339CD29DAA0F5000C48EE /* AppDelegate.m */; };
+		AABBCC1100000000DDEEFF11 /* Datatypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC0100000000DDEEFF01 /* Datatypes.swift */; };
+		AABBCC1200000000DDEEFF12 /* VietnameseTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC0200000000DDEEFF02 /* VietnameseTables.swift */; };
+		AABBCC1300000000DDEEFF13 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC0300000000DDEEFF03 /* Engine.swift */; };
+		AABBCC1400000000DDEEFF14 /* EventProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC0400000000DDEEFF04 /* EventProcessor.swift */; };
+		AABBCC1500000000DDEEFF15 /* EventTapManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC0500000000DDEEFF05 /* EventTapManager.swift */; };
+		AABBCC1600000000DDEEFF16 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC0600000000DDEEFF06 /* AppDelegate.swift */; };
+		AABBCC1700000000DDEEFF17 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC0700000000DDEEFF07 /* main.swift */; };
 		212339D329DAA0F8000C48EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 212339D229DAA0F8000C48EE /* Assets.xcassets */; };
 		212339D629DAA0F8000C48EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 212339D429DAA0F8000C48EE /* Main.storyboard */; };
-		212339D829DAA0F8000C48EE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 212339D729DAA0F8000C48EE /* main.m */; };
-		212339E229DAA19A000C48EE /* vietnamese.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 212339E029DAA19A000C48EE /* vietnamese.cpp */; };
-		212339E729DAA24D000C48EE /* engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 212339E529DAA24D000C48EE /* engine.cpp */; };
-		212339E929DAA4AA000C48EE /* process.mm in Sources */ = {isa = PBXBuildFile; fileRef = 212339E829DAA4AA000C48EE /* process.mm */; };
-		212339EC29DAA4F8000C48EE /* manager.m in Sources */ = {isa = PBXBuildFile; fileRef = 212339EB29DAA4F8000C48EE /* manager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AABBCC0100000000DDEEFF01 /* Datatypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Datatypes.swift; sourceTree = "<group>"; };
+		AABBCC0200000000DDEEFF02 /* VietnameseTables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VietnameseTables.swift; sourceTree = "<group>"; };
+		AABBCC0300000000DDEEFF03 /* Engine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Engine.swift; sourceTree = "<group>"; };
+		AABBCC0400000000DDEEFF04 /* EventProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventProcessor.swift; sourceTree = "<group>"; };
+		AABBCC0500000000DDEEFF05 /* EventTapManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTapManager.swift; sourceTree = "<group>"; };
+		AABBCC0600000000DDEEFF06 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		AABBCC0700000000DDEEFF07 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		212339C929DAA0F5000C48EE /* yaim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = yaim.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		212339CC29DAA0F5000C48EE /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		212339CD29DAA0F5000C48EE /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		212339D229DAA0F8000C48EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		212339D529DAA0F8000C48EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		212339D729DAA0F8000C48EE /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		212339D929DAA0F8000C48EE /* yaim.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = yaim.entitlements; sourceTree = "<group>"; };
-		212339E029DAA19A000C48EE /* vietnamese.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = vietnamese.cpp; sourceTree = "<group>"; };
-		212339E129DAA19A000C48EE /* vietnamese.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = vietnamese.hpp; sourceTree = "<group>"; };
-		212339E329DAA1B6000C48EE /* datatypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = datatypes.h; sourceTree = "<group>"; };
-		212339E529DAA24D000C48EE /* engine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cpp; sourceTree = "<group>"; };
-		212339E629DAA24D000C48EE /* engine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = engine.hpp; sourceTree = "<group>"; };
-		212339E829DAA4AA000C48EE /* process.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = process.mm; sourceTree = "<group>"; };
-		212339EA29DAA4D4000C48EE /* manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = manager.h; sourceTree = "<group>"; };
-		212339EB29DAA4F8000C48EE /* manager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = manager.m; sourceTree = "<group>"; };
 		2150FADB29DAAA390038EFF7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -67,30 +64,18 @@
 			isa = PBXGroup;
 			children = (
 				2150FADB29DAAA390038EFF7 /* Info.plist */,
-				212339DF29DAA17A000C48EE /* engine */,
-				212339CC29DAA0F5000C48EE /* AppDelegate.h */,
-				212339CD29DAA0F5000C48EE /* AppDelegate.m */,
 				212339D229DAA0F8000C48EE /* Assets.xcassets */,
 				212339D429DAA0F8000C48EE /* Main.storyboard */,
-				212339D729DAA0F8000C48EE /* main.m */,
 				212339D929DAA0F8000C48EE /* yaim.entitlements */,
-				212339E829DAA4AA000C48EE /* process.mm */,
-				212339EA29DAA4D4000C48EE /* manager.h */,
-				212339EB29DAA4F8000C48EE /* manager.m */,
+				AABBCC0700000000DDEEFF07 /* main.swift */,
+				AABBCC0600000000DDEEFF06 /* AppDelegate.swift */,
+				AABBCC0500000000DDEEFF05 /* EventTapManager.swift */,
+				AABBCC0400000000DDEEFF04 /* EventProcessor.swift */,
+				AABBCC0300000000DDEEFF03 /* Engine.swift */,
+				AABBCC0200000000DDEEFF02 /* VietnameseTables.swift */,
+				AABBCC0100000000DDEEFF01 /* Datatypes.swift */,
 			);
 			path = yaim;
-			sourceTree = "<group>";
-		};
-		212339DF29DAA17A000C48EE /* engine */ = {
-			isa = PBXGroup;
-			children = (
-				212339E029DAA19A000C48EE /* vietnamese.cpp */,
-				212339E129DAA19A000C48EE /* vietnamese.hpp */,
-				212339E329DAA1B6000C48EE /* datatypes.h */,
-				212339E529DAA24D000C48EE /* engine.cpp */,
-				212339E629DAA24D000C48EE /* engine.hpp */,
-			);
-			path = engine;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -162,12 +147,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				212339E229DAA19A000C48EE /* vietnamese.cpp in Sources */,
-				212339E729DAA24D000C48EE /* engine.cpp in Sources */,
-				212339EC29DAA4F8000C48EE /* manager.m in Sources */,
-				212339D829DAA0F8000C48EE /* main.m in Sources */,
-				212339CE29DAA0F5000C48EE /* AppDelegate.m in Sources */,
-				212339E929DAA4AA000C48EE /* process.mm in Sources */,
+				AABBCC1100000000DDEEFF11 /* Datatypes.swift in Sources */,
+				AABBCC1200000000DDEEFF12 /* VietnameseTables.swift in Sources */,
+				AABBCC1300000000DDEEFF13 /* Engine.swift in Sources */,
+				AABBCC1400000000DDEEFF14 /* EventProcessor.swift in Sources */,
+				AABBCC1500000000DDEEFF15 /* EventTapManager.swift in Sources */,
+				AABBCC1600000000DDEEFF16 /* AppDelegate.swift in Sources */,
+				AABBCC1700000000DDEEFF17 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,10 +177,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -221,8 +204,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -240,6 +221,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -249,10 +231,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -279,7 +258,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -291,6 +269,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -318,6 +297,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = local.naa.yaim;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -345,6 +325,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = local.naa.yaim;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
